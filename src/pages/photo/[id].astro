@@ -1,0 +1,615 @@
+---
+import { getCollection } from "astro:content";
+import { Picture, getImage } from "astro:assets";
+import Layout from "../../layouts/Layout.astro";
+import MapBox from "../../components/MapBox.astro";
+
+export async function getStaticPaths() {
+  const allPhotos = await getCollection("photos");
+  const sortedPhotos = allPhotos.sort(
+    (a, b) =>
+      new Date(b.data.date_taken as Date).getTime() -
+      new Date(a.data.date_taken as Date).getTime()
+  );
+
+  const photos = sortedPhotos.map((photo) => ({
+    id: photo.id,
+    url_o: photo.data.imageUrls.original?.url as string,
+    title: photo.data.title,
+    date_taken: photo.data.date_taken as Date,
+    description: photo.data.description || "",
+    width_o: photo.data.imageUrls.original?.width as number,
+    height_o: photo.data.imageUrls.original?.height as number,
+    latitude: photo.data.latitude as string,
+    longitude: photo.data.longitude as string,
+    locationName: (photo.data as { locationName?: string }).locationName,
+    tags: (photo.data as { tags?: string[] }).tags || [],
+    exif: photo.data.exif as Record<
+      string,
+      {
+        value: string;
+        clean?: string;
+        raw?: string;
+      }
+    >,
+  }));
+
+  return photos.map((photo, index) => ({
+    params: { id: photo.id },
+    props: {
+      currentPhoto: photo,
+      photoIndex: index,
+      photos,
+      prevId: index > 0 ? photos[index - 1].id : null,
+      nextId: index < photos.length - 1 ? photos[index + 1].id : null,
+    },
+  }));
+}
+
+const { currentPhoto, photoIndex, photos, prevId, nextId } = Astro.props;
+
+const optimizedImage = await getImage({
+  src: currentPhoto.url_o,
+  format: "jpg",
+  width: currentPhoto.width_o,
+  height: currentPhoto.height_o,
+});
+
+const formatDate = (date: Date) => {
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(date));
+};
+
+const imageStructuredData: any = {
+  "@context": "https://schema.org",
+  "@type": "ImageObject",
+  contentUrl: new URL(optimizedImage.src, Astro.site).href,
+  url: new URL(optimizedImage.src, Astro.site).href,
+  name: currentPhoto.title,
+  description: currentPhoto.description || currentPhoto.title,
+  uploadDate: currentPhoto.date_taken.toISOString(),
+  datePublished: currentPhoto.date_taken.toISOString(),
+  width: currentPhoto.width_o,
+  height: currentPhoto.height_o,
+  license: "https://creativecommons.org/licenses/by/4.0/",
+  acquireLicensePage: "https://creativecommons.org/licenses/by/4.0/",
+  creator: {
+    "@type": "Person",
+    name: "Alexis LOURS",
+  },
+  copyrightHolder: {
+    "@type": "Person",
+    name: "Alexis LOURS",
+  },
+  copyrightNotice:
+    "© Alexis LOURS. Licensed under Creative Commons Attribution 4.0 International",
+  creditText: "Alexis LOURS",
+  encodingFormat: "image/jpeg",
+  representativeOfPage: true,
+};
+
+if (
+  currentPhoto.latitude &&
+  currentPhoto.longitude &&
+  currentPhoto.latitude !== "0" &&
+  currentPhoto.longitude !== "0"
+) {
+  imageStructuredData.contentLocation = {
+    "@type": "Place",
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: parseFloat(currentPhoto.latitude),
+      longitude: parseFloat(currentPhoto.longitude),
+    },
+  };
+}
+
+const title = "Alexis LOURS - " + currentPhoto.title;
+const description = currentPhoto.description;
+const ogImage = currentPhoto.url_o;
+---
+
+<Layout
+  title={title}
+  description={description}
+  ogImage={ogImage}>
+  <Fragment slot="head">
+    {
+      prevId && (
+        <link
+          rel="prefetch"
+          href={`/photo/${prevId}/`}
+        />
+      )
+    }
+    {
+      nextId && (
+        <link
+          rel="prefetch"
+          href={`/photo/${nextId}/`}
+        />
+      )
+    }
+    <link
+      rel="license"
+      href="https://creativecommons.org/licenses/by/4.0/"
+    />
+    <meta
+      name="dc.rights"
+      content="Creative Commons Attribution 4.0 International"
+    />
+    <meta
+      name="dc.creator"
+      content="Alexis LOURS"
+    />
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(imageStructuredData)}
+    />
+  </Fragment>
+  <div class="fixed inset-0 overflow-hidden bg-black text-white">
+    <header
+      class="absolute top-0 right-0 left-0 z-20 bg-gradient-to-b from-black/80 to-transparent">
+      <div class="flex items-center justify-between p-4">
+        <a
+          href="/"
+          class="flex items-center gap-2 text-white/90 transition-colors hover:text-white"
+          data-umami-event="Back to home"
+          aria-label="Back to home">
+          <svg
+            class="h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            ></path>
+          </svg>
+          <span class="hidden sm:inline"> Back </span>
+        </a>
+        <div class="flex items-center gap-4">
+          <div class="text-sm text-white/80">
+            {photoIndex + 1} of {photos.length}
+          </div>
+          <button
+            id="sidebar-toggle"
+            data-umami-event="Toggle photo sidebar"
+            class="rounded-lg bg-black/20 p-2 transition-colors hover:bg-black/40"
+            title="Toggle info (I)">
+            <svg
+              class="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="flex h-full flex-col lg:flex-row">
+      <div
+        class="relative flex min-h-0 min-w-0 flex-1 items-center justify-center">
+        <Picture
+          src={currentPhoto.url_o}
+          data-pagefind-meta="image[src]"
+          alt={currentPhoto.description || currentPhoto.title || "Photo"}
+          class="h-auto max-h-screen w-auto max-w-full object-contain"
+          formats={["avif"]}
+          fetchpriority="high"
+          loading="eager"
+          fallbackFormat="jpg"
+          width={currentPhoto.width_o}
+          height={currentPhoto.height_o}
+          layout="constrained"
+        />
+
+        {
+          prevId && (
+            <a
+              href={`/photo/${prevId}/`}
+              data-umami-event="Previous photo"
+              id="nav-left"
+              class="group absolute top-0 left-0 z-10 h-full w-1/3 cursor-pointer"
+              title="Previous photo"
+              aria-label="Previous photo">
+              <div class="flex h-full items-center justify-start pl-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <div class="transform rounded-full bg-black/60 p-3 text-white shadow-lg backdrop-blur-sm transition-transform duration-200 group-hover:scale-110">
+                  <svg
+                    class="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </a>
+          )
+        }
+
+        {
+          nextId && (
+            <a
+              href={`/photo/${nextId}/`}
+              data-umami-event="Next photo"
+              id="nav-right"
+              class="group absolute top-0 right-0 z-10 h-full w-1/3 cursor-pointer"
+              title="Next photo"
+              aria-label="Next photo">
+              <div class="flex h-full items-center justify-end pr-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <div class="transform rounded-full bg-black/60 p-3 text-white shadow-lg backdrop-blur-sm transition-transform duration-200 group-hover:scale-110">
+                  <svg
+                    class="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </a>
+          )
+        }
+      </div>
+
+      <aside
+        id="sidebar"
+        class="sidebar-default max-h-[60vh] w-full overflow-y-auto border-t border-gray-200 bg-white text-gray-900 lg:max-h-none lg:w-80 lg:border-t-0 lg:border-l lg:pt-14">
+        <div class="space-y-6 p-6">
+          {
+            currentPhoto.title && (
+              <div>
+                <h1 class="mb-2 text-2xl font-bold text-gray-900">
+                  {currentPhoto.title}
+                </h1>
+              </div>
+            )
+          }
+
+          {
+            currentPhoto.description && (
+              <div>
+                <h2 class="mb-2 text-sm font-medium text-gray-600">
+                  Description
+                </h2>
+                <p
+                  data-pagefind-body
+                  class="text-gray-800">
+                  {currentPhoto.description}
+                </p>
+              </div>
+            )
+          }
+
+          <div class="border-b border-gray-200 pb-4">
+            <a
+              href={currentPhoto.url_o}
+              target="_blank"
+              data-umami-event="Download photo"
+              rel="noopener noreferrer"
+              class="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-white transition-colors hover:bg-blue-700">
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+                ></path>
+              </svg>
+              Download
+            </a>
+            <div class="mt-3 rounded-lg bg-gray-50 p-3 text-center">
+              <div class="mb-1 flex items-center justify-center gap-2">
+                <svg
+                  class="h-4 w-4 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  ></path>
+                </svg>
+                <span class="text-xs font-medium text-gray-600"> License </span>
+              </div>
+              <p class="text-xs text-gray-500">
+                Licensed under{" "}
+                <a
+                  href="https://creativecommons.org/licenses/by/4.0/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-umami-event="License"
+                  class="font-medium text-blue-600 transition-colors hover:text-blue-800 hover:underline">
+                  Creative Commons Attribution 4.0
+                </a>
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <h2 class="mb-2 text-sm font-medium text-gray-600">Date Taken</h2>
+            <p
+              data-pagefind-sort={"date:" +
+                currentPhoto.date_taken.toISOString().split("T")[0]}
+              class="text-gray-800">
+              {formatDate(currentPhoto.date_taken)}
+            </p>
+          </div>
+
+          <div>
+            <h2 class="mb-2 text-sm font-medium text-gray-600">
+              Image Details
+            </h2>
+            <div class="space-y-2 text-gray-800">
+              <div class="flex justify-between">
+                <span>Dimensions:</span>
+                <span>{currentPhoto.width_o} × {currentPhoto.height_o}</span>
+              </div>
+            </div>
+          </div>
+
+          {
+            currentPhoto.exif?.Model || currentPhoto.exif?.Lens ? (
+              <div>
+                <h2 class="mb-2 text-sm font-medium text-gray-600">
+                  Camera Information
+                </h2>
+                <div class="space-y-2 text-gray-800">
+                  {currentPhoto.exif.Model && (
+                    <div class="break-words">
+                      {currentPhoto.exif.Model.clean ||
+                        currentPhoto.exif.Model.value}
+                    </div>
+                  )}
+                  {currentPhoto.exif.Lens && (
+                    <div class="break-words">
+                      {currentPhoto.exif.Lens.clean ||
+                        currentPhoto.exif.Lens.value}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : null
+          }
+
+          {
+            currentPhoto.exif?.ExposureTime ||
+            currentPhoto.exif?.FNumber ||
+            currentPhoto.exif?.FocalLength ||
+            currentPhoto.exif?.ISO ? (
+              <div>
+                <h2 class="mb-2 text-sm font-medium text-gray-600">
+                  Shooting Parameters
+                </h2>
+                <div class="space-y-2 text-gray-800">
+                  {currentPhoto.exif.ExposureTime && (
+                    <div class="flex justify-between">
+                      <span>Exposure Time:</span>
+                      <span>{currentPhoto.exif.ExposureTime.raw}</span>
+                    </div>
+                  )}
+                  {currentPhoto.exif.FNumber && (
+                    <div class="flex justify-between">
+                      <span>Aperture:</span>
+                      <span>
+                        {currentPhoto.exif.FNumber.clean ||
+                          currentPhoto.exif.FNumber.value}
+                      </span>
+                    </div>
+                  )}
+                  {currentPhoto.exif.FocalLength && (
+                    <div class="flex justify-between">
+                      <span>Focal Length:</span>
+                      <span>
+                        {currentPhoto.exif.FocalLength.clean ||
+                          currentPhoto.exif.FocalLength.value}
+                      </span>
+                    </div>
+                  )}
+                  {currentPhoto.exif.ISO && (
+                    <div class="flex justify-between">
+                      <span>ISO:</span>
+                      <span>
+                        {currentPhoto.exif.ISO.clean ||
+                          currentPhoto.exif.ISO.value}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : null
+          }
+
+          {
+            currentPhoto.latitude &&
+            currentPhoto.longitude &&
+            currentPhoto.latitude !== "0" &&
+            currentPhoto.longitude !== "0" ? (
+              <div>
+                <h2 class="mb-2 text-sm font-medium text-gray-600">Location</h2>
+                <MapBox
+                  latitude={currentPhoto.latitude}
+                  longitude={currentPhoto.longitude}
+                  locationName={currentPhoto.locationName}
+                  width={300}
+                  height={300}
+                  zoom={13}
+                />
+              </div>
+            ) : null
+          }
+        </div>
+      </aside>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  aside::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  aside::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  aside::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+  }
+
+  aside::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar-default {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .sidebar-default {
+      display: block;
+    }
+  }
+
+  .sidebar-hidden {
+    display: none !important;
+  }
+
+  .sidebar-show {
+    display: block !important;
+    z-index: 30;
+  }
+</style>
+
+<script define:vars={{ prevId, nextId }}>
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft" && prevId) {
+      umami.track("Previous photo");
+      window.location.href = `/photo/${prevId}/`;
+    } else if (e.key === "ArrowRight" && nextId) {
+      umami.track("Next photo");
+      window.location.href = `/photo/${nextId}/`;
+    } else if (e.key === "Escape") {
+      umami.track("Back to home");
+      window.location.href = "/";
+    } else if (e.key === "i" || e.key === "I") {
+      umami.track("Toggle photo sidebar");
+      toggleSidebar();
+    }
+  });
+
+  function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar) {
+      if (window.innerWidth >= 1024) {
+        sidebar.classList.toggle("sidebar-hidden");
+        sessionStorage.setItem(
+          "sidebar-hidden-desktop",
+          sidebar.classList.contains("sidebar-hidden").toString()
+        );
+      } else {
+        sidebar.classList.toggle("sidebar-show");
+        sessionStorage.setItem(
+          "sidebar-show-mobile",
+          sidebar.classList.contains("sidebar-show").toString()
+        );
+      }
+    }
+  }
+
+  function restoreSidebarState() {
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar) {
+      if (window.innerWidth >= 1024) {
+        const isHidden =
+          sessionStorage.getItem("sidebar-hidden-desktop") === "true";
+        if (isHidden) {
+          sidebar.classList.add("sidebar-hidden");
+        } else {
+          sidebar.classList.remove("sidebar-hidden");
+        }
+      } else {
+        const isShown =
+          sessionStorage.getItem("sidebar-show-mobile") === "true";
+        if (isShown) {
+          sidebar.classList.add("sidebar-show");
+        } else {
+          sidebar.classList.remove("sidebar-show");
+        }
+      }
+    }
+  }
+
+  let toggleButton = null;
+
+  function attachToggleButtonListener() {
+    if (toggleButton) {
+      toggleButton.removeEventListener("click", toggleSidebar);
+    }
+
+    toggleButton = document.getElementById("sidebar-toggle");
+    if (toggleButton) {
+      toggleButton.addEventListener("click", toggleSidebar);
+    }
+  }
+
+  function handleAfterSwap() {
+    if (window.location.pathname.startsWith("/photo/")) {
+      attachToggleButtonListener();
+      restoreSidebarState();
+    }
+  }
+
+  attachToggleButtonListener();
+  restoreSidebarState();
+
+  document.addEventListener("astro:after-swap", handleAfterSwap);
+
+  document.addEventListener("astro:before-swap", () => {
+    if (toggleButton) {
+      toggleButton.removeEventListener("click", toggleSidebar);
+      toggleButton = null;
+    }
+    document.removeEventListener("astro:after-swap", handleAfterSwap);
+  });
+
+  window.addEventListener("resize", () => {
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar && window.innerWidth >= 1024) {
+      sidebar.classList.remove("sidebar-show");
+    }
+    restoreSidebarState();
+  });
+</script>

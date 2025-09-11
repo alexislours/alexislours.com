@@ -1,0 +1,26 @@
+---
+import { buildId } from "../constants/meta";
+
+const currentYear = new Date().getFullYear();
+const startYear = 2021;
+const yearRange =
+  startYear === currentYear
+    ? currentYear.toString()
+    : `${startYear}-${currentYear}`;
+---
+
+<footer
+  class="mt-auto border-t border-gray-200 bg-gradient-to-r from-slate-50 to-gray-50 shadow-sm">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="py-6">
+      <div class="text-center">
+        <p class="text-sm text-gray-600">
+          © {yearRange} Alexis Lours. All rights reserved.
+        </p>
+        <p class="mt-2 text-xs text-gray-500">
+          Build ID: {buildId}
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>

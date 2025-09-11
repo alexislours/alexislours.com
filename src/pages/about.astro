@@ -1,0 +1,18 @@
+---
+import Layout from "../layouts/Layout.astro";
+import LinkTree from "../components/LinkTree.astro";
+import { links, linkCategories, profileInfo } from "../constants/links";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout
+  title={`${profileInfo.name} - Links`}
+  description="Where to find me">
+  <LinkTree
+    links={links}
+    categories={linkCategories}
+    profileInfo={profileInfo}
+  />
+
+  <Footer />
+</Layout>

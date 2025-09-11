@@ -1,0 +1,120 @@
+---
+import { Picture } from "astro:assets";
+
+interface Photo {
+  id: string;
+  url_o: string;
+  title: string;
+  date_taken: Date;
+  description: string;
+  width_o: number;
+  height_o: number;
+}
+
+interface Props {
+  photos: Photo[];
+}
+
+const { photos } = Astro.props;
+---
+
+<section class="section">
+  {
+    photos.map((photo, index) => {
+      const aspectRatio = photo.width_o / photo.height_o;
+      const width = aspectRatio * 250;
+      const paddingBottom = (1 / aspectRatio) * 100;
+
+      return (
+        <a
+          href={`/photo/${photo.id}/`}
+          class="group link"
+          style={`width: ${width}px; flex-grow: ${width}`}>
+          <div
+            class="block"
+            style={`padding-bottom: ${paddingBottom}%`}
+          />
+          <Picture
+            src={photo.url_o}
+            fetchpriority={index < 5 ? "high" : "auto"}
+            alt={photo.description || photo.title || "Photo"}
+            class="photo-fade photo"
+            formats={["avif"]}
+            loading={index < 5 ? "eager" : "lazy"}
+            fallbackFormat="jpg"
+            width={photo.width_o}
+            height={photo.height_o}
+            sizes={`(max-width: 768px) 100vw, (max-width: 1024px) 50vw, min(33vw, 400px)`}
+            widths={[320, 640, 400, 800, 1024, 1280]}
+          />
+        </a>
+      );
+    })
+  }
+</section>
+
+<style>
+  .section {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 2px;
+  }
+  .section:after {
+    content: "";
+    flex-grow: 999999999;
+  }
+  .link {
+    position: relative;
+    margin: 2px;
+    cursor: pointer;
+    background-color: #e5e7eb;
+  }
+  .photo {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    transition: opacity 0.6s ease-in-out;
+  }
+
+  .photo:hover {
+    opacity: 0.9;
+  }
+
+  .photo-fade {
+    opacity: 0;
+  }
+
+  .photo-fade.loaded {
+    opacity: 1;
+  }
+
+  .no-js .photo-fade {
+    opacity: 1;
+  }
+</style>
+
+<script is:inline>
+  document.documentElement.classList.remove("no-js");
+
+  function initializePhotos() {
+    const photos = document.querySelectorAll(
+      ".photo-fade:not([data-processed])"
+    );
+
+    photos.forEach((photo) => {
+      if (photo.complete && photo.naturalHeight !== 0) {
+        photo.classList.add("loaded");
+      } else {
+        photo.addEventListener("load", () => photo.classList.add("loaded"));
+        photo.addEventListener("error", () => photo.classList.add("loaded"));
+      }
+
+      photo.dataset.processed = "true";
+    });
+  }
+
+  initializePhotos();
+  document.addEventListener("astro:after-swap", initializePhotos);
+</script>

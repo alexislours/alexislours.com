@@ -1,0 +1,206 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import PhotoStats from "../components/PhotoStats.svelte";
+
+const allPhotos = await getCollection("photos");
+const sortedPhotos = allPhotos.sort(
+  (a, b) =>
+    new Date(b.data.date_taken as Date).getTime() -
+    new Date(a.data.date_taken as Date).getTime()
+);
+
+interface ProcessedPhoto {
+  id: string;
+  title: string;
+  date_taken: Date;
+  description: string;
+  width_o: number;
+  height_o: number;
+  latitude: string;
+  longitude: string;
+  locationName?: string;
+  tags: string[];
+  exif?: Record<string, { value: string; clean?: string; raw?: string }>;
+}
+
+const photos: ProcessedPhoto[] = sortedPhotos.map((photo) => ({
+  id: photo.id,
+  title: photo.data.title,
+  date_taken: photo.data.date_taken as Date,
+  description: photo.data.description || "",
+  width_o: photo.data.imageUrls.original?.width as number,
+  height_o: photo.data.imageUrls.original?.height as number,
+  latitude: photo.data.latitude as string,
+  longitude: photo.data.longitude as string,
+  locationName: (photo.data as any).locationName,
+  tags: (photo.data as any).tags || [],
+  exif: photo.data.exif as Record<
+    string,
+    { value: string; clean?: string; raw?: string }
+  >,
+}));
+
+const processPhotoStats = (photos: ProcessedPhoto[]) => {
+  const totalPhotos = photos.length;
+  const dates = photos.map((p) => p.date_taken).filter(Boolean);
+  const oldestPhoto =
+    dates.length > 0
+      ? new Date(Math.min(...dates.map((d) => d.getTime())))
+      : null;
+  const newestPhoto =
+    dates.length > 0
+      ? new Date(Math.max(...dates.map((d) => d.getTime())))
+      : null;
+
+  const photosByYear = photos.reduce(
+    (acc, photo) => {
+      if (photo.date_taken) {
+        const year = photo.date_taken.getFullYear();
+        acc[year] = (acc[year] || 0) + 1;
+      }
+      return acc;
+    },
+    {} as Record<number, number>
+  );
+
+  const photosByMonth = photos.reduce(
+    (acc, photo) => {
+      if (photo.date_taken) {
+        const month = photo.date_taken.toISOString().substring(0, 7);
+        acc[month] = (acc[month] || 0) + 1;
+      }
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  const getExifValue = (exif: any, key: string) =>
+    exif?.[key]?.clean || exif?.[key]?.value;
+
+  const cameras = photos.reduce(
+    (acc, photo) => {
+      const camera = getExifValue(photo.exif, "Model");
+      if (camera) acc[camera] = (acc[camera] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  const lenses = photos.reduce(
+    (acc, photo) => {
+      const lens = getExifValue(photo.exif, "Lens");
+      if (lens) acc[lens] = (acc[lens] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  const isoValues = photos.reduce(
+    (acc, photo) => {
+      const iso = getExifValue(photo.exif, "ISO");
+      if (iso) acc[iso] = (acc[iso] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  const apertures = photos.reduce(
+    (acc, photo) => {
+      const aperture = getExifValue(photo.exif, "FNumber");
+      if (aperture) acc[aperture] = (acc[aperture] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  const focalLengths = photos.reduce(
+    (acc, photo) => {
+      const focalLength = getExifValue(photo.exif, "FocalLength");
+      if (focalLength) {
+        const normalized = focalLength.replace(/[^\d.]/g, "");
+        if (normalized)
+          acc[normalized + "mm"] = (acc[normalized + "mm"] || 0) + 1;
+      }
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  const locationsWithGPS = photos.filter(
+    (p) => p.latitude && p.longitude
+  ).length;
+  const uniqueLocations = [
+    ...new Set(photos.map((p) => p.locationName).filter(Boolean)),
+  ].length;
+
+  const sortByCount = (obj: Record<string, number>, limit = 10) =>
+    Object.entries(obj)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, limit)
+      .map(([name, count]) => ({ name, count }));
+
+  return {
+    totalPhotos,
+    dateRange: {
+      oldest: oldestPhoto,
+      newest: newestPhoto,
+      span:
+        oldestPhoto && newestPhoto
+          ? Math.round(
+              (newestPhoto.getTime() - oldestPhoto.getTime()) /
+                (1000 * 60 * 60 * 24 * 365.25)
+            )
+          : 0,
+    },
+    photosByYear: Object.entries(photosByYear)
+      .sort(([a], [b]) => parseInt(a) - parseInt(b))
+      .map(([year, count]) => ({ year: parseInt(year), count })),
+    photosByMonth: Object.entries(photosByMonth)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, count]) => ({ month, count })),
+    equipment: {
+      cameras: sortByCount(cameras),
+      lenses: sortByCount(lenses),
+    },
+    settings: {
+      iso: sortByCount(isoValues),
+      apertures: sortByCount(apertures),
+      focalLengths: sortByCount(focalLengths),
+    },
+    locations: {
+      withGPS: locationsWithGPS,
+      unique: uniqueLocations,
+      percentage:
+        totalPhotos > 0
+          ? Math.round((locationsWithGPS / totalPhotos) * 100)
+          : 0,
+    },
+  };
+};
+
+const photoStats = processPhotoStats(photos);
+
+const title = "Photo Statistics - Alexis LOURS";
+const description =
+  "Statistical insights about my wildlife photography portfolio.";
+---
+
+<Layout
+  title={title}
+  description={description}>
+  <main>
+    <Header title="Photo Statistics" />
+
+    <div class="mx-auto max-w-7xl px-4 py-6">
+      <PhotoStats
+        client:load
+        photoStats={photoStats}
+      />
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

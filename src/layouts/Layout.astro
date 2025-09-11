@@ -1,0 +1,63 @@
+---
+import styles from "../styles/global.css?url";
+import { ClientRouter } from "astro:transitions";
+import Head from "../components/Head.astro";
+
+const { title, description, ogImage } = Astro.props;
+---
+
+<!doctype html>
+<html
+  lang="en"
+  class="no-js">
+  <head>
+    <link
+      rel="stylesheet"
+      rel="preload"
+      href={styles}
+      as="style"
+    />
+    <Head
+      title={title}
+      description={description}
+      ogImage={ogImage}
+    />
+    <slot name="head" />
+  </head>
+  <body class="flex h-screen flex-col bg-white text-gray-900">
+    <ClientRouter />
+    <slot />
+  </body>
+</html>
+
+<script is:inline>
+  let isViewTransition = false;
+
+  document.addEventListener("astro:before-preparation", () => {
+    isViewTransition = true;
+    if (window.location.pathname === "/") {
+      sessionStorage.setItem("homepage-scroll", window.scrollY.toString());
+
+      umami.track("Homepage scroll", {
+        scrollY: window.scrollY,
+      });
+    }
+  });
+  document.addEventListener("astro:after-swap", () => {
+    if (isViewTransition && window.location.pathname === "/") {
+      const savedScroll = sessionStorage.getItem("homepage-scroll");
+      if (savedScroll) {
+        requestAnimationFrame(() => {
+          window.scrollTo(0, +savedScroll);
+        });
+      }
+    }
+    isViewTransition = false;
+  });
+
+  window.addEventListener("beforeunload", () => {
+    if (!isViewTransition) {
+      sessionStorage.removeItem("homepage-scroll");
+    }
+  });
+</script>

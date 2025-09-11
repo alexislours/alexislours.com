@@ -1,0 +1,202 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../layouts/Layout.astro";
+import PhotoGrid from "../components/PhotoGrid.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Search from "astro-pagefind/components/Search";
+
+const allPhotos = await getCollection("photos");
+const sortedPhotos = allPhotos.sort(
+  (a, b) =>
+    new Date(b.data.date_taken as Date).getTime() -
+    new Date(a.data.date_taken as Date).getTime()
+);
+
+const photos = sortedPhotos.map((photo) => ({
+  id: photo.id,
+  url_o: photo.data.imageUrls.original?.url as string,
+  title: photo.data.title,
+  date_taken: photo.data.date_taken as Date,
+  description: photo.data.description || "",
+  width_o: photo.data.imageUrls.original?.width as number,
+  height_o: photo.data.imageUrls.original?.height as number,
+  latitude: photo.data.latitude as string,
+  longitude: photo.data.longitude as string,
+  exif: photo.data.exif as Record<
+    string,
+    {
+      value: string;
+      clean?: string;
+      raw?: string;
+    }
+  >,
+}));
+
+const title = "Alexis LOURS";
+const description = "My wildlife photography portfolio.";
+const ogImage = photos[0].url_o;
+---
+
+<Layout
+  title={title}
+  description={description}
+  ogImage={ogImage}>
+  <main>
+    <Header title="Alexis LOURS" />
+
+    <div class="mx-auto max-w-7xl py-4 pt-8 pb-4">
+      <div class="flex justify-center">
+        <button
+          id="search-toggle"
+          data-umami-event="Toggle search"
+          class="group flex cursor-pointer items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-200"
+          title="Toggle search"
+          aria-label="Toggle search">
+          <svg
+            class="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            ></path>
+          </svg>
+          <span id="search-text">Search Photos</span>
+        </button>
+      </div>
+    </div>
+
+    <section
+      id="search-section"
+      class="mx-auto hidden max-w-7xl px-4 py-4">
+      <div
+        class="mx-auto max-w-2xl rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <Search
+          id="search"
+          className="pagefind-ui"
+          uiOptions={{
+            showImages: true,
+            showEmptyFilters: true,
+            resetStyles: false,
+            placeholderText: "Search photos...",
+            sort: { date: "desc" },
+          }}
+        />
+      </div>
+    </section>
+
+    <div class="mx-auto max-w-7xl px-4 py-6">
+      <PhotoGrid photos={photos} />
+    </div>
+  </main>
+
+  <button
+    id="scroll-to-top"
+    data-umami-event="Scroll to top"
+    class="pointer-events-none fixed right-6 bottom-6 z-50 h-12 w-12 translate-y-4 cursor-pointer rounded-full bg-black/80 text-white opacity-0 shadow-lg transition-all duration-300 hover:bg-black"
+    title="Scroll to top"
+    aria-label="Scroll to top">
+    <svg
+      class="mx-auto h-6 w-6"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M5 10l7-7m0 0l7 7m-7-7v18"
+      ></path>
+    </svg>
+  </button>
+
+  <Footer />
+</Layout>
+
+<script>
+  function setupSearchToggle() {
+    const searchToggle = document.getElementById("search-toggle");
+    const searchSection = document.getElementById("search-section");
+
+    if (!searchToggle || !searchSection) return;
+
+    searchToggle.addEventListener("click", () => {
+      const isHidden = searchSection.classList.contains("hidden");
+      const searchText = document.getElementById("search-text");
+
+      if (isHidden) {
+        searchSection.classList.remove("hidden");
+        if (searchText) searchText.textContent = "Hide Search";
+        setTimeout(() => {
+          const searchInput = searchSection.querySelector(
+            'input[type="search"]'
+          ) as HTMLInputElement;
+          if (searchInput?.focus) {
+            searchInput.focus();
+          }
+        }, 100);
+      } else {
+        searchSection.classList.add("hidden");
+        if (searchText) searchText.textContent = "Search Photos";
+      }
+    });
+  }
+
+  function setupScrollToTop() {
+    const scrollToTopButton = document.getElementById("scroll-to-top");
+    if (!scrollToTopButton) return;
+
+    function toggleScrollButton() {
+      if (!scrollToTopButton) return;
+
+      if (window.scrollY > 300) {
+        scrollToTopButton.classList.remove(
+          "opacity-0",
+          "translate-y-4",
+          "pointer-events-none"
+        );
+        scrollToTopButton.classList.add(
+          "opacity-100",
+          "translate-y-0",
+          "pointer-events-auto"
+        );
+      } else {
+        scrollToTopButton.classList.remove(
+          "opacity-100",
+          "translate-y-0",
+          "pointer-events-auto"
+        );
+        scrollToTopButton.classList.add(
+          "opacity-0",
+          "translate-y-4",
+          "pointer-events-none"
+        );
+      }
+    }
+
+    window.addEventListener("scroll", toggleScrollButton);
+
+    scrollToTopButton.addEventListener("click", () => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    });
+
+    toggleScrollButton();
+  }
+
+  setupSearchToggle();
+  setupScrollToTop();
+
+  document.addEventListener("astro:after-swap", () => {
+    if (window.location.pathname === "/") {
+      setupSearchToggle();
+      setupScrollToTop();
+    }
+  });
+</script>
