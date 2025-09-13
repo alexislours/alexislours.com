@@ -29,6 +29,8 @@ const { photos } = Astro.props;
         <a
           href={`/photo/${photo.id}/`}
           class="group link"
+          data-umami-event="Click photo in grid"
+          data-umami-event-id={photo.id}
           style={`width: ${width}px; flex-grow: ${width}`}>
           <div
             class="block"
