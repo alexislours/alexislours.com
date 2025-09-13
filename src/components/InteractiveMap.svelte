@@ -438,7 +438,7 @@
       class="rounded-lg border border-gray-200/50 bg-white/90 p-1 shadow-lg backdrop-blur-sm">
       <div class="flex">
         <button
-          class="flex h-10 w-10 items-center justify-center rounded-md text-lg transition-all duration-200 {currentMapStyle ===
+          class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-md text-lg transition-all duration-200 {currentMapStyle ===
           'outdoors'
             ? 'bg-blue-500 text-white shadow-sm'
             : 'text-gray-600 hover:bg-gray-100'}"
@@ -448,7 +448,7 @@
           🗺️
         </button>
         <button
-          class="flex h-10 w-10 items-center justify-center rounded-md text-lg transition-all duration-200 {currentMapStyle ===
+          class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-md text-lg transition-all duration-200 {currentMapStyle ===
           'satellite'
             ? 'bg-blue-500 text-white shadow-sm'
             : 'text-gray-600 hover:bg-gray-100'}"
@@ -464,7 +464,7 @@
       class="rounded-lg border border-gray-200/50 bg-white/90 p-1 shadow-lg backdrop-blur-sm">
       <div class="flex">
         <button
-          class="flex h-10 w-10 items-center justify-center rounded-md text-lg transition-all duration-200 {!showHeatmap
+          class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-md text-lg transition-all duration-200 {!showHeatmap
             ? 'bg-blue-500 text-white shadow-sm'
             : 'text-gray-600 hover:bg-gray-100'}"
           on:click={() => {
@@ -475,7 +475,7 @@
           📍
         </button>
         <button
-          class="flex h-10 w-10 items-center justify-center rounded-md text-lg transition-all duration-200 {showHeatmap
+          class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-md text-lg transition-all duration-200 {showHeatmap
             ? 'bg-blue-500 text-white shadow-sm'
             : 'text-gray-600 hover:bg-gray-100'}"
           on:click={() => {
