@@ -1,0 +1,22 @@
+on:
+  pull_request:
+    types: [opened, edited]
+    branches:
+      - main
+
+jobs:
+  check:
+    runs-on: docker
+    steps:
+      - name: Checkout
+        uses: https://data.forgejo.org/actions/checkout@v5
+      - name: Set up Node.js
+        uses: https://data.forgejo.org/actions/setup-node@v4
+        with:
+          node-version: 24.6.0
+      - name: Install dependencies
+        run: npm install
+      - name: Lint
+        run: npm run lint
+      - name: Format check
+        run: npm run format:check
