@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import mapboxgl from 'mapbox-gl';
-  import 'mapbox-gl/dist/mapbox-gl.css';
+  import { onMount } from "svelte";
+  import mapboxgl from "mapbox-gl";
+  import "mapbox-gl/dist/mapbox-gl.css";
 
   interface Photo {
     id: string;
@@ -22,49 +22,53 @@
 
   let mapContainer: HTMLDivElement;
   let map: mapboxgl.Map;
-  let currentMapStyle = 'outdoors';
+  let currentMapStyle = "outdoors";
   let showHeatmap = false;
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     }).format(new Date(date));
   };
 
   const switchMapStyle = (style: string) => {
     currentMapStyle = style;
-    const styleUrl = style === 'satellite' 
-      ? 'mapbox://styles/mapbox/satellite-v9'
-      : 'mapbox://styles/mapbox/outdoors-v12';
+    const styleUrl =
+      style === "satellite"
+        ? "mapbox://styles/mapbox/satellite-v9"
+        : "mapbox://styles/mapbox/outdoors-v12";
     map.setStyle(styleUrl);
-    
-    map.once('styledata', () => {
+
+    map.once("styledata", () => {
       addPhotoData();
     });
   };
 
-  const setLayerVisibility = (layerId: string, visibility: 'visible' | 'none') => {
+  const setLayerVisibility = (
+    layerId: string,
+    visibility: "visible" | "none"
+  ) => {
     if (map.getLayer(layerId)) {
-      map.setLayoutProperty(layerId, 'visibility', visibility);
+      map.setLayoutProperty(layerId, "visibility", visibility);
     }
   };
 
   const showHeatmapLayers = () => {
-    setLayerVisibility('photos-markers', 'none');
-    setLayerVisibility('photos-icons', 'none');
-    setLayerVisibility('clusters', 'none');
-    setLayerVisibility('cluster-count', 'none');
-    setLayerVisibility('photos-heatmap-layer', 'visible');
+    setLayerVisibility("photos-markers", "none");
+    setLayerVisibility("photos-icons", "none");
+    setLayerVisibility("clusters", "none");
+    setLayerVisibility("cluster-count", "none");
+    setLayerVisibility("photos-heatmap-layer", "visible");
   };
 
   const showMarkerLayers = () => {
-    setLayerVisibility('photos-heatmap-layer', 'none');
-    setLayerVisibility('photos-markers', 'visible');
-    setLayerVisibility('photos-icons', 'visible');
-    setLayerVisibility('clusters', 'visible');
-    setLayerVisibility('cluster-count', 'visible');
+    setLayerVisibility("photos-heatmap-layer", "none");
+    setLayerVisibility("photos-markers", "visible");
+    setLayerVisibility("photos-icons", "visible");
+    setLayerVisibility("clusters", "visible");
+    setLayerVisibility("cluster-count", "visible");
   };
 
   const toggleHeatmap = () => {
@@ -80,19 +84,19 @@
 
   const removeAllEventHandlers = () => {
     Object.entries(eventHandlers).forEach(([key, handler]) => {
-      const [event, layer] = key.split(':');
+      const [event, layer] = key.split(":");
       map.off(event as any, layer, handler);
     });
-    Object.keys(eventHandlers).forEach(key => delete eventHandlers[key]);
+    Object.keys(eventHandlers).forEach((key) => delete eventHandlers[key]);
   };
 
   const addPhotoData = () => {
     removeAllEventHandlers();
-    
+
     const geojsonData: GeoJSON.FeatureCollection = {
-      type: 'FeatureCollection' as const,
-      features: photos.map(photo => ({
-        type: 'Feature' as const,
+      type: "FeatureCollection" as const,
+      features: photos.map((photo) => ({
+        type: "Feature" as const,
         properties: {
           id: photo.id,
           title: photo.title,
@@ -100,189 +104,208 @@
           date_taken: photo.date_taken.toISOString(),
           url_o: photo.url_o,
           url_500: photo.url_500,
-          locationName: photo.locationName || ''
+          locationName: photo.locationName || "",
         },
         geometry: {
-          type: 'Point' as const,
-          coordinates: [photo.longitude, photo.latitude]
-        }
-      }))
+          type: "Point" as const,
+          coordinates: [photo.longitude, photo.latitude],
+        },
+      })),
     };
 
-    if (!map.getSource('photos-clustered')) {
-      map.addSource('photos-clustered', {
-        type: 'geojson',
+    if (!map.getSource("photos-clustered")) {
+      map.addSource("photos-clustered", {
+        type: "geojson",
         data: geojsonData,
         cluster: true,
         clusterMaxZoom: 14,
-        clusterRadius: 50
+        clusterRadius: 50,
       });
     } else {
-      const source = map.getSource('photos-clustered') as mapboxgl.GeoJSONSource;
+      const source = map.getSource(
+        "photos-clustered"
+      ) as mapboxgl.GeoJSONSource;
       source.setData(geojsonData);
     }
 
-    if (!map.getSource('photos-heatmap')) {
-      map.addSource('photos-heatmap', {
-        type: 'geojson',
+    if (!map.getSource("photos-heatmap")) {
+      map.addSource("photos-heatmap", {
+        type: "geojson",
         data: geojsonData,
       });
     } else {
-      const source = map.getSource('photos-heatmap') as mapboxgl.GeoJSONSource;
+      const source = map.getSource("photos-heatmap") as mapboxgl.GeoJSONSource;
       source.setData(geojsonData);
     }
 
-    if (!map.getLayer('photos-heatmap-layer')) {
+    if (!map.getLayer("photos-heatmap-layer")) {
       map.addLayer({
-        id: 'photos-heatmap-layer',
-        type: 'heatmap',
-        source: 'photos-heatmap',
+        id: "photos-heatmap-layer",
+        type: "heatmap",
+        source: "photos-heatmap",
         layout: {
-          visibility: 'none'
+          visibility: "none",
         },
         paint: {
-          'heatmap-weight': 0.8,
-          'heatmap-intensity': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            0, 1,
-            10, 2,
-            15, 3
+          "heatmap-weight": 0.8,
+          "heatmap-intensity": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            0,
+            1,
+            10,
+            2,
+            15,
+            3,
           ],
-          'heatmap-color': [
-            'interpolate',
-            ['linear'],
-            ['heatmap-density'],
-            0, 'rgba(0,0,0,0)',
-            0.05, 'rgba(0,0,255,0.3)',
-            0.2, 'rgba(0,100,255,0.4)',
-            0.4, 'rgba(0,200,255,0.5)',
-            0.6, 'rgba(0,255,255,0.6)',
-            0.8, 'rgba(100,255,100,0.7)',
-            0.9, 'rgba(255,255,0,0.8)',
-            0.97, 'rgba(255,150,0,0.9)',
-            0.99, 'rgba(255,50,0,0.95)',
-            1, 'rgba(255,0,0,1)'
+          "heatmap-color": [
+            "interpolate",
+            ["linear"],
+            ["heatmap-density"],
+            0,
+            "rgba(0,0,0,0)",
+            0.05,
+            "rgba(0,0,255,0.3)",
+            0.2,
+            "rgba(0,100,255,0.4)",
+            0.4,
+            "rgba(0,200,255,0.5)",
+            0.6,
+            "rgba(0,255,255,0.6)",
+            0.8,
+            "rgba(100,255,100,0.7)",
+            0.9,
+            "rgba(255,255,0,0.8)",
+            0.97,
+            "rgba(255,150,0,0.9)",
+            0.99,
+            "rgba(255,50,0,0.95)",
+            1,
+            "rgba(255,0,0,1)",
           ],
-          'heatmap-radius': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            0, 15,
-            10, 25,
-            15, 35
+          "heatmap-radius": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            0,
+            15,
+            10,
+            25,
+            15,
+            35,
           ],
-          'heatmap-opacity': 0.8
-        }
+          "heatmap-opacity": 0.8,
+        },
       });
     }
 
-    if (!map.getLayer('clusters')) {
+    if (!map.getLayer("clusters")) {
       map.addLayer({
-        id: 'clusters',
-        type: 'circle',
-        source: 'photos-clustered',
-        filter: ['has', 'point_count'],
+        id: "clusters",
+        type: "circle",
+        source: "photos-clustered",
+        filter: ["has", "point_count"],
         paint: {
-          'circle-color': [
-            'step',
-            ['get', 'point_count'],
-            '#51bbd6',
+          "circle-color": [
+            "step",
+            ["get", "point_count"],
+            "#51bbd6",
             10,
-            '#f1f075',
+            "#f1f075",
             30,
-            '#f28cb1'
+            "#f28cb1",
           ],
-          'circle-radius': [
-            'step',
-            ['get', 'point_count'],
-            20,
-            10,
-            30,
-            30,
-            40
-          ],
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#fff'
-        }
+          "circle-radius": ["step", ["get", "point_count"], 20, 10, 30, 30, 40],
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#fff",
+        },
       });
     }
 
-    if (!map.getLayer('cluster-count')) {
+    if (!map.getLayer("cluster-count")) {
       map.addLayer({
-        id: 'cluster-count',
-        type: 'symbol',
-        source: 'photos-clustered',
-        filter: ['has', 'point_count'],
+        id: "cluster-count",
+        type: "symbol",
+        source: "photos-clustered",
+        filter: ["has", "point_count"],
         layout: {
-          'text-field': '{point_count_abbreviated}',
-          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-          'text-size': 12
+          "text-field": "{point_count_abbreviated}",
+          "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+          "text-size": 12,
         },
         paint: {
-          'text-color': '#ffffff'
-        }
+          "text-color": "#ffffff",
+        },
       });
     }
 
-    if (!map.getLayer('photos-markers')) {
+    if (!map.getLayer("photos-markers")) {
       map.addLayer({
-        id: 'photos-markers',
-        type: 'circle',
-        source: 'photos-clustered',
-        filter: ['!', ['has', 'point_count']],
+        id: "photos-markers",
+        type: "circle",
+        source: "photos-clustered",
+        filter: ["!", ["has", "point_count"]],
         paint: {
-          'circle-color': '#ff5555',
-          'circle-radius': 8,
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#fff'
-        }
+          "circle-color": "#ff5555",
+          "circle-radius": 8,
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#fff",
+        },
       });
     }
 
-    if (!map.getLayer('photos-icons')) {
+    if (!map.getLayer("photos-icons")) {
       map.addLayer({
-        id: 'photos-icons',
-        type: 'symbol',
-        source: 'photos-clustered',
-        filter: ['!', ['has', 'point_count']],
+        id: "photos-icons",
+        type: "symbol",
+        source: "photos-clustered",
+        filter: ["!", ["has", "point_count"]],
         layout: {
-          'text-field': '📷',
-          'text-font': ['Open Sans Regular'],
-          'text-size': 12
-        }
+          "text-field": "📷",
+          "text-font": ["Open Sans Regular"],
+          "text-size": 12,
+        },
       });
     }
 
-    eventHandlers['click:clusters'] = (e: any) => {
+    eventHandlers["click:clusters"] = (e: any) => {
       const features = map.queryRenderedFeatures(e.point, {
-        layers: ['clusters']
+        layers: ["clusters"],
       });
       if (features && features.length > 0 && features[0].properties) {
         const clusterId = features[0].properties.cluster_id;
-        const source = map.getSource('photos-clustered') as mapboxgl.GeoJSONSource;
+        const source = map.getSource(
+          "photos-clustered"
+        ) as mapboxgl.GeoJSONSource;
         source.getClusterExpansionZoom(clusterId, (err: any, zoom: any) => {
-          if (!err && features[0].geometry.type === 'Point') {
+          if (!err && features[0].geometry.type === "Point") {
             map.easeTo({
               center: features[0].geometry.coordinates as [number, number],
-              zoom: zoom
+              zoom: zoom,
             });
           }
         });
       }
     };
 
-    eventHandlers['click:photos-markers'] = (e: any) => {
-      if (e.features && e.features.length > 0 && e.features[0].geometry.type === 'Point') {
-        const coordinates = e.features[0].geometry.coordinates.slice() as [number, number];
+    eventHandlers["click:photos-markers"] = (e: any) => {
+      if (
+        e.features &&
+        e.features.length > 0 &&
+        e.features[0].geometry.type === "Point"
+      ) {
+        const coordinates = e.features[0].geometry.coordinates.slice() as [
+          number,
+          number,
+        ];
         const properties = e.features[0].properties;
-        
+
         if (!properties) return;
-        
+
         const maxWidth = 280;
         const imageHeight = 180;
-        
+
         const popupHTML = `
           <div class="p-0 max-w-[${maxWidth}px]">
             <div class="relative">
@@ -295,17 +318,21 @@
             </div>
             <div class="p-4">
               <h3 class="font-semibold text-gray-900 mb-2 leading-tight text-sm">${properties.title}</h3>
-              ${properties.description ? `<p class="text-gray-600 text-xs mb-2 line-clamp-2">${properties.description}</p>` : ''}
+              ${properties.description ? `<p class="text-gray-600 text-xs mb-2 line-clamp-2">${properties.description}</p>` : ""}
               <div class="text-xs text-gray-500 mb-2 flex items-center gap-1">
                 <span>📅</span>
                 <span>${formatDate(new Date(properties.date_taken))}</span>
               </div>
-              ${properties.locationName ? `
+              ${
+                properties.locationName
+                  ? `
                 <div class="text-xs text-gray-500 mb-3 flex items-start gap-1">
                   <span>📍</span>
                   <span class="break-words">${properties.locationName}</span>
                 </div>
-              ` : ''}
+              `
+                  : ""
+              }
               <a 
                 href="/photo/${properties.id}/"
                 class="inline-block bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-2 rounded transition-colors duration-200 w-full text-center"
@@ -320,7 +347,7 @@
           offset: 25,
           closeButton: true,
           closeOnClick: true,
-          maxWidth: `${maxWidth}px`
+          maxWidth: `${maxWidth}px`,
         })
           .setLngLat(coordinates)
           .setHTML(popupHTML)
@@ -328,24 +355,24 @@
       }
     };
 
-    eventHandlers['mouseenter:clusters'] = () => {
-      map.getCanvas().style.cursor = 'pointer';
+    eventHandlers["mouseenter:clusters"] = () => {
+      map.getCanvas().style.cursor = "pointer";
     };
-    eventHandlers['mouseleave:clusters'] = () => {
-      map.getCanvas().style.cursor = '';
+    eventHandlers["mouseleave:clusters"] = () => {
+      map.getCanvas().style.cursor = "";
     };
-    eventHandlers['mouseenter:photos-markers'] = () => {
-      map.getCanvas().style.cursor = 'pointer';
+    eventHandlers["mouseenter:photos-markers"] = () => {
+      map.getCanvas().style.cursor = "pointer";
     };
-    eventHandlers['mouseleave:photos-markers'] = () => {
-      map.getCanvas().style.cursor = '';
+    eventHandlers["mouseleave:photos-markers"] = () => {
+      map.getCanvas().style.cursor = "";
     };
 
     Object.entries(eventHandlers).forEach(([key, handler]) => {
-      const [event, layer] = key.split(':');
+      const [event, layer] = key.split(":");
       map.on(event as any, layer, handler);
     });
-    
+
     if (showHeatmap) {
       showHeatmapLayers();
     } else {
@@ -355,7 +382,7 @@
 
   onMount(() => {
     if (!mapboxToken) {
-      console.error('Mapbox token is not provided');
+      console.error("Mapbox token is not provided");
       return;
     }
 
@@ -363,32 +390,32 @@
 
     map = new mapboxgl.Map({
       container: mapContainer,
-      style: 'mapbox://styles/mapbox/outdoors-v12',
+      style: "mapbox://styles/mapbox/outdoors-v12",
       center: [0, 20],
       zoom: 1,
-      maxZoom: 18
+      maxZoom: 18,
     });
 
-    map.on('load', () => {
+    map.on("load", () => {
       addPhotoData();
-      
+
       if (photos.length > 0) {
         const bounds = new mapboxgl.LngLatBounds();
-        photos.forEach(photo => {
+        photos.forEach((photo) => {
           bounds.extend([photo.longitude, photo.latitude]);
         });
-        
+
         setTimeout(() => {
           map.fitBounds(bounds, {
             padding: 50,
-            maxZoom: 15
+            maxZoom: 15,
           });
         }, 100);
       }
-      
-      map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-      
-      map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+
+      map.addControl(new mapboxgl.NavigationControl(), "top-right");
+
+      map.addControl(new mapboxgl.FullscreenControl(), "top-right");
     });
 
     return () => {
@@ -400,47 +427,62 @@
   });
 </script>
 
-<div class="relative w-full h-full">
-  <div bind:this={mapContainer} class="w-full h-full"></div>
-  
+<div class="relative h-full w-full">
+  <div
+    bind:this={mapContainer}
+    class="h-full w-full">
+  </div>
+
   <div class="absolute top-4 left-4 z-10 flex gap-2">
-    <div class="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200/50 p-1">
+    <div
+      class="rounded-lg border border-gray-200/50 bg-white/90 p-1 shadow-lg backdrop-blur-sm">
       <div class="flex">
         <button
-          class="w-10 h-10 flex items-center justify-center text-lg rounded-md transition-all duration-200 {currentMapStyle === 'outdoors' ? 'bg-blue-500 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}"
-          on:click={() => switchMapStyle('outdoors')}
+          class="flex h-10 w-10 items-center justify-center rounded-md text-lg transition-all duration-200 {currentMapStyle ===
+          'outdoors'
+            ? 'bg-blue-500 text-white shadow-sm'
+            : 'text-gray-600 hover:bg-gray-100'}"
+          on:click={() => switchMapStyle("outdoors")}
           title="Street Map"
-          data-umami-event="Street Map"
-        >
+          data-umami-event="Street Map">
           🗺️
         </button>
         <button
-          class="w-10 h-10 flex items-center justify-center text-lg rounded-md transition-all duration-200 {currentMapStyle === 'satellite' ? 'bg-blue-500 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}"
-          on:click={() => switchMapStyle('satellite')}
+          class="flex h-10 w-10 items-center justify-center rounded-md text-lg transition-all duration-200 {currentMapStyle ===
+          'satellite'
+            ? 'bg-blue-500 text-white shadow-sm'
+            : 'text-gray-600 hover:bg-gray-100'}"
+          on:click={() => switchMapStyle("satellite")}
           title="Satellite View"
-          data-umami-event="Satellite View"
-        >
+          data-umami-event="Satellite View">
           🛰️
         </button>
       </div>
     </div>
-    
-    <div class="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200/50 p-1">
+
+    <div
+      class="rounded-lg border border-gray-200/50 bg-white/90 p-1 shadow-lg backdrop-blur-sm">
       <div class="flex">
         <button
-          class="w-10 h-10 flex items-center justify-center text-lg rounded-md transition-all duration-200 {!showHeatmap ? 'bg-blue-500 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}"
-          on:click={() => { if (showHeatmap) toggleHeatmap(); }}
+          class="flex h-10 w-10 items-center justify-center rounded-md text-lg transition-all duration-200 {!showHeatmap
+            ? 'bg-blue-500 text-white shadow-sm'
+            : 'text-gray-600 hover:bg-gray-100'}"
+          on:click={() => {
+            if (showHeatmap) toggleHeatmap();
+          }}
           title="Markers View"
-          data-umami-event="Markers View"
-        >
+          data-umami-event="Markers View">
           📍
         </button>
         <button
-          class="w-10 h-10 flex items-center justify-center text-lg rounded-md transition-all duration-200 {showHeatmap ? 'bg-blue-500 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}"
-          on:click={() => { if (!showHeatmap) toggleHeatmap(); }}
+          class="flex h-10 w-10 items-center justify-center rounded-md text-lg transition-all duration-200 {showHeatmap
+            ? 'bg-blue-500 text-white shadow-sm'
+            : 'text-gray-600 hover:bg-gray-100'}"
+          on:click={() => {
+            if (!showHeatmap) toggleHeatmap();
+          }}
           title="Heatmap View"
-          data-umami-event="Heatmap View"
-        >
+          data-umami-event="Heatmap View">
           🔥
         </button>
       </div>

@@ -56,17 +56,18 @@
   let focalLengthsCanvas;
 
   const colors = {
-    primary: '#3B82F6',
-    secondary: '#8B5CF6',
-    success: '#10B981',
-    warning: '#F59E0B',
-    pink: '#EC4899'
+    primary: "#3B82F6",
+    secondary: "#8B5CF6",
+    success: "#10B981",
+    warning: "#F59E0B",
+    pink: "#EC4899",
   };
 
-  const createGradient = (ctx, colors, direction = 'vertical') => {
-    const gradient = direction === 'vertical'
-      ? ctx.createLinearGradient(0, 0, 0, 400)
-      : ctx.createLinearGradient(0, 0, 400, 0);
+  const createGradient = (ctx, colors, direction = "vertical") => {
+    const gradient =
+      direction === "vertical"
+        ? ctx.createLinearGradient(0, 0, 0, 400)
+        : ctx.createLinearGradient(0, 0, 400, 0);
     gradient.addColorStop(0, colors[0]);
     gradient.addColorStop(1, colors[1]);
     return gradient;
@@ -81,59 +82,59 @@
         labels: {
           usePointStyle: true,
           padding: 20,
-          font: { size: 12, weight: '500' },
-          color: '#4B5563'
-        }
+          font: { size: 12, weight: "500" },
+          color: "#4B5563",
+        },
       },
       tooltip: {
-        backgroundColor: 'rgba(17, 24, 39, 0.95)',
-        titleColor: '#F9FAFB',
-        bodyColor: '#F3F4F6',
-        borderColor: 'rgba(59, 130, 246, 0.3)',
+        backgroundColor: "rgba(17, 24, 39, 0.95)",
+        titleColor: "#F9FAFB",
+        bodyColor: "#F3F4F6",
+        borderColor: "rgba(59, 130, 246, 0.3)",
         borderWidth: 1,
         cornerRadius: 12,
         padding: 16,
         displayColors: false,
-        titleFont: { size: 14, weight: '600' },
+        titleFont: { size: 14, weight: "600" },
         bodyFont: { size: 13 },
-        filter: function(tooltipItem) {
+        filter: function (tooltipItem) {
           return tooltipItem.parsed.y !== 0;
-        }
-      }
+        },
+      },
     },
     scales: {
       x: {
         display: true,
         grid: {
           display: false,
-          drawBorder: false
+          drawBorder: false,
         },
         ticks: {
-          color: '#9CA3AF',
-          font: { size: 11, weight: '500' }
-        }
+          color: "#9CA3AF",
+          font: { size: 11, weight: "500" },
+        },
       },
       y: {
         display: true,
         grid: {
-          color: 'rgba(156, 163, 175, 0.1)',
+          color: "rgba(156, 163, 175, 0.1)",
           drawBorder: false,
-          lineWidth: 1
+          lineWidth: 1,
         },
         ticks: {
-          color: '#9CA3AF',
-          font: { size: 11, weight: '500' }
-        }
-      }
+          color: "#9CA3AF",
+          font: { size: 11, weight: "500" },
+        },
+      },
     },
     interaction: {
       intersect: false,
-      mode: 'index'
+      mode: "index",
     },
     animation: {
       duration: 800,
-      easing: 'easeOutCubic'
-    }
+      easing: "easeOutCubic",
+    },
   };
 
   const formatMonth = (month) => {
@@ -143,23 +144,32 @@
     });
   };
 
-  const createBarChart = (canvas, data, labels, color, gradient, tooltipCallback) => {
+  const createBarChart = (
+    canvas,
+    data,
+    labels,
+    color,
+    gradient,
+    tooltipCallback
+  ) => {
     const ctx = canvas.getContext("2d");
     const chartGradient = createGradient(ctx, gradient);
-    
+
     return new Chart(ctx, {
       type: "bar",
       data: {
         labels: labels,
-        datasets: [{
-          label: "Photos",
-          data: data,
-          backgroundColor: chartGradient,
-          borderColor: color,
-          borderWidth: 1,
-          borderRadius: 6,
-          borderSkipped: false,
-        }],
+        datasets: [
+          {
+            label: "Photos",
+            data: data,
+            backgroundColor: chartGradient,
+            borderColor: color,
+            borderWidth: 1,
+            borderRadius: 6,
+            borderSkipped: false,
+          },
+        ],
       },
       options: {
         ...defaultChartOptions,
@@ -174,20 +184,28 @@
     });
   };
 
-  const createPieChart = (canvas, data, labels, backgroundColor, tooltipCallback) => {
+  const createPieChart = (
+    canvas,
+    data,
+    labels,
+    backgroundColor,
+    tooltipCallback
+  ) => {
     const ctx = canvas.getContext("2d");
-    
+
     return new Chart(ctx, {
       type: "pie",
       data: {
         labels: labels,
-        datasets: [{
-          data: data,
-          backgroundColor: backgroundColor,
-          borderColor: "white",
-          borderWidth: 3,
-          hoverOffset: 12,
-        }],
+        datasets: [
+          {
+            data: data,
+            backgroundColor: backgroundColor,
+            borderColor: "white",
+            borderWidth: 3,
+            hoverOffset: 12,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -196,10 +214,10 @@
           legend: {
             position: "right",
             labels: {
-              color: '#4B5563',
+              color: "#4B5563",
               usePointStyle: true,
               padding: 16,
-              font: { size: 12, weight: '500' },
+              font: { size: 12, weight: "500" },
             },
           },
           tooltip: {
@@ -211,20 +229,28 @@
     });
   };
 
-  const createDoughnutChart = (canvas, data, labels, backgroundColor, tooltipCallback) => {
+  const createDoughnutChart = (
+    canvas,
+    data,
+    labels,
+    backgroundColor,
+    tooltipCallback
+  ) => {
     const ctx = canvas.getContext("2d");
-    
+
     return new Chart(ctx, {
       type: "doughnut",
       data: {
         labels: labels,
-        datasets: [{
-          data: data,
-          backgroundColor: backgroundColor,
-          borderColor: "white",
-          borderWidth: 3,
-          hoverOffset: 8,
-        }],
+        datasets: [
+          {
+            data: data,
+            backgroundColor: backgroundColor,
+            borderColor: "white",
+            borderWidth: 3,
+            hoverOffset: 8,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -233,10 +259,10 @@
           legend: {
             position: "right",
             labels: {
-              color: '#4B5563',
+              color: "#4B5563",
               usePointStyle: true,
               padding: 16,
-              font: { size: 12, weight: '500' },
+              font: { size: 12, weight: "500" },
             },
           },
           tooltip: {
@@ -303,14 +329,15 @@
                   return index % 3 === 0 ? this.getLabelForValue(value) : "";
                 },
               },
-            }
+            },
           },
           plugins: {
             ...defaultChartOptions.plugins,
             tooltip: {
               ...defaultChartOptions.plugins.tooltip,
               callbacks: {
-                label: (context) => `${context.parsed.y} photos in ${context.label}`,
+                label: (context) =>
+                  `${context.parsed.y} photos in ${context.label}`,
               },
             },
           },
@@ -318,7 +345,10 @@
       });
     }
 
-    if (photoStats.equipment?.cameras && photoStats.equipment.cameras.length > 0) {
+    if (
+      photoStats.equipment?.cameras &&
+      photoStats.equipment.cameras.length > 0
+    ) {
       camerasChart = createPieChart(
         camerasCanvas,
         photoStats.equipment.cameras.map((d) => d.count),
@@ -336,14 +366,20 @@
           "rgba(168, 85, 247, 0.8)",
         ],
         (context) => {
-          const total = photoStats.equipment.cameras.reduce((sum, c) => sum + c.count, 0);
+          const total = photoStats.equipment.cameras.reduce(
+            (sum, c) => sum + c.count,
+            0
+          );
           const percentage = ((context.parsed / total) * 100).toFixed(1);
           return `${context.parsed} photos (${percentage}%)`;
         }
       );
     }
 
-    if (photoStats.equipment?.lenses && photoStats.equipment.lenses.length > 0) {
+    if (
+      photoStats.equipment?.lenses &&
+      photoStats.equipment.lenses.length > 0
+    ) {
       lensesChart = createBarChart(
         lensesCanvas,
         photoStats.equipment.lenses.map((d) => d.count),
@@ -351,7 +387,10 @@
         colors.success,
         ["rgba(16, 185, 129, 0.4)", "rgba(16, 185, 129, 0.1)"],
         (context) => {
-          const total = photoStats.equipment.lenses.reduce((sum, l) => sum + l.count, 0);
+          const total = photoStats.equipment.lenses.reduce(
+            (sum, l) => sum + l.count,
+            0
+          );
           const percentage = ((context.parsed.y / total) * 100).toFixed(1);
           return `${context.parsed.y} photos (${percentage}%)`;
         }
@@ -369,7 +408,10 @@
       );
     }
 
-    if (photoStats.settings?.apertures && photoStats.settings.apertures.length > 0) {
+    if (
+      photoStats.settings?.apertures &&
+      photoStats.settings.apertures.length > 0
+    ) {
       aperturesChart = createDoughnutChart(
         aperturesCanvas,
         photoStats.settings.apertures.map((d) => d.count),
@@ -385,14 +427,20 @@
           "rgba(99, 102, 241, 0.8)",
         ],
         (context) => {
-          const total = photoStats.settings.apertures.reduce((sum, a) => sum + a.count, 0);
+          const total = photoStats.settings.apertures.reduce(
+            (sum, a) => sum + a.count,
+            0
+          );
           const percentage = ((context.parsed / total) * 100).toFixed(1);
           return `${context.parsed} photos (${percentage}%)`;
         }
       );
     }
 
-    if (photoStats.settings?.focalLengths && photoStats.settings.focalLengths.length > 0) {
+    if (
+      photoStats.settings?.focalLengths &&
+      photoStats.settings.focalLengths.length > 0
+    ) {
       focalLengthsChart = createBarChart(
         focalLengthsCanvas,
         photoStats.settings.focalLengths.map((d) => d.count),
@@ -411,70 +459,51 @@
   });
 
   onDestroy(() => {
-    [photosByYearChart, photosByMonthChart, camerasChart, lensesChart, isoChart, aperturesChart, focalLengthsChart]
-      .forEach((chart) => chart?.destroy());
+    [
+      photosByYearChart,
+      photosByMonthChart,
+      camerasChart,
+      lensesChart,
+      isoChart,
+      aperturesChart,
+      focalLengthsChart,
+    ].forEach((chart) => chart?.destroy());
   });
 </script>
 
 <div class="min-h-screen">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     {#if photoStats}
       <div class="space-y-12">
         <div
           class="text-center"
           in:fly={{ y: -20, duration: 400, delay: 100, easing: cubicOut }}>
-          <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+          <h1 class="mb-2 text-3xl font-bold text-gray-900 sm:text-4xl">
             Photo Statistics
           </h1>
-          <p class="text-gray-600 text-lg">Insights from my wildlife photography collection</p>
+          <p class="text-lg text-gray-600">
+            Insights from my wildlife photography collection
+          </p>
         </div>
 
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {#each [
-            { 
-              title: "Total Photos", 
-              value: photoStats.totalPhotos.toLocaleString(), 
-              icon: "📸", 
-              color: "blue",
-              subtitle: "In collection"
-            }, 
-            { 
-              title: "Years Active", 
-              value: photoStats.dateRange.span.toString(), 
-              icon: "📅", 
-              color: "green",
-              subtitle: `Since ${photoStats.dateRange.oldest?.getFullYear() || 'N/A'}`
-            }, 
-            { 
-              title: "With GPS", 
-              value: `${photoStats.locations.percentage}%`, 
-              icon: "🌍", 
-              color: "purple",
-              subtitle: `${photoStats.locations.withGPS} photos`
-            }, 
-            { 
-              title: "Locations", 
-              value: photoStats.locations.unique.toString(), 
-              icon: "📍", 
-              color: "orange",
-              subtitle: "Unique places"
-            }
-          ] as stat, i}
+          {#each [{ title: "Total Photos", value: photoStats.totalPhotos.toLocaleString(), icon: "📸", color: "blue", subtitle: "In collection" }, { title: "Years Active", value: photoStats.dateRange.span.toString(), icon: "📅", color: "green", subtitle: `Since ${photoStats.dateRange.oldest?.getFullYear() || "N/A"}` }, { title: "With GPS", value: `${photoStats.locations.percentage}%`, icon: "🌍", color: "purple", subtitle: `${photoStats.locations.withGPS} photos` }, { title: "Locations", value: photoStats.locations.unique.toString(), icon: "📍", color: "orange", subtitle: "Unique places" }] as stat, i}
             <div
-              class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
+              class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
               in:fly={{
                 y: 20,
                 duration: 400,
                 delay: 200 + i * 50,
                 easing: cubicOut,
               }}>
-              <div class="flex items-center justify-between mb-4">
+              <div class="mb-4 flex items-center justify-between">
                 <div class="text-2xl">{stat.icon}</div>
-                <div class="text-xs font-medium text-{stat.color}-600 bg-{stat.color}-50 px-2 py-1 rounded-full">
+                <div
+                  class="text-xs font-medium text-{stat.color}-600 bg-{stat.color}-50 rounded-full px-2 py-1">
                   {stat.subtitle}
                 </div>
               </div>
-              <h3 class="text-sm font-medium text-gray-600 mb-1">
+              <h3 class="mb-1 text-sm font-medium text-gray-600">
                 {stat.title}
               </h3>
               <p class="text-2xl font-bold text-gray-900">
@@ -488,11 +517,19 @@
           <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {#if photoStats.photosByYear && photoStats.photosByYear.length > 0}
               <div
-                class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
-                in:fly={{ x: -20, duration: 400, delay: 300, easing: cubicOut }}>
-                <div class="flex items-center justify-between mb-6">
-                  <h3 class="text-lg font-semibold text-gray-900">Photos by Year</h3>
-                  <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
+                class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
+                in:fly={{
+                  x: -20,
+                  duration: 400,
+                  delay: 300,
+                  easing: cubicOut,
+                }}>
+                <div class="mb-6 flex items-center justify-between">
+                  <h3 class="text-lg font-semibold text-gray-900">
+                    Photos by Year
+                  </h3>
+                  <span
+                    class="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-500">
                     Timeline
                   </span>
                 </div>
@@ -504,11 +541,14 @@
 
             {#if photoStats.photosByMonth && photoStats.photosByMonth.length > 0}
               <div
-                class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
+                class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
                 in:fly={{ x: 20, duration: 400, delay: 350, easing: cubicOut }}>
-                <div class="flex items-center justify-between mb-6">
-                  <h3 class="text-lg font-semibold text-gray-900">Monthly Activity</h3>
-                  <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
+                <div class="mb-6 flex items-center justify-between">
+                  <h3 class="text-lg font-semibold text-gray-900">
+                    Monthly Activity
+                  </h3>
+                  <span
+                    class="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-500">
                     All Time
                   </span>
                 </div>
@@ -523,7 +563,7 @@
         {#if (photoStats.equipment?.cameras && photoStats.equipment.cameras.length > 0) || (photoStats.equipment?.lenses && photoStats.equipment.lenses.length > 0)}
           <div class="space-y-8">
             <div class="text-center">
-              <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+              <h2 class="mb-2 text-2xl font-semibold text-gray-900">
                 Camera Equipment
               </h2>
               <p class="text-gray-600">Breakdown of cameras and lenses used</p>
@@ -532,11 +572,19 @@
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
               {#if photoStats.equipment?.cameras && photoStats.equipment.cameras.length > 0}
                 <div
-                  class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
-                  in:fly={{ x: -20, duration: 400, delay: 400, easing: cubicOut }}>
-                  <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900">Camera Bodies</h3>
-                    <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
+                  class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
+                  in:fly={{
+                    x: -20,
+                    duration: 400,
+                    delay: 400,
+                    easing: cubicOut,
+                  }}>
+                  <div class="mb-6 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                      Camera Bodies
+                    </h3>
+                    <span
+                      class="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-500">
                       Top {photoStats.equipment.cameras.length}
                     </span>
                   </div>
@@ -548,11 +596,17 @@
 
               {#if photoStats.equipment?.lenses && photoStats.equipment.lenses.length > 0}
                 <div
-                  class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
-                  in:fly={{ x: 20, duration: 400, delay: 450, easing: cubicOut }}>
-                  <div class="flex items-center justify-between mb-6">
+                  class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
+                  in:fly={{
+                    x: 20,
+                    duration: 400,
+                    delay: 450,
+                    easing: cubicOut,
+                  }}>
+                  <div class="mb-6 flex items-center justify-between">
                     <h3 class="text-lg font-semibold text-gray-900">Lenses</h3>
-                    <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
+                    <span
+                      class="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-500">
                       Top {photoStats.equipment.lenses.length}
                     </span>
                   </div>
@@ -568,7 +622,7 @@
         {#if (photoStats.settings?.iso && photoStats.settings.iso.length > 0) || (photoStats.settings?.apertures && photoStats.settings.apertures.length > 0) || (photoStats.settings?.focalLengths && photoStats.settings.focalLengths.length > 0)}
           <div class="space-y-8">
             <div class="text-center">
-              <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+              <h2 class="mb-2 text-2xl font-semibold text-gray-900">
                 Camera Settings
               </h2>
               <p class="text-gray-600">Most commonly used camera settings</p>
@@ -577,10 +631,17 @@
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
               {#if photoStats.settings?.iso && photoStats.settings.iso.length > 0}
                 <div
-                  class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
-                  in:fly={{ y: 20, duration: 400, delay: 500, easing: cubicOut }}>
-                  <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900">ISO Values</h3>
+                  class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
+                  in:fly={{
+                    y: 20,
+                    duration: 400,
+                    delay: 500,
+                    easing: cubicOut,
+                  }}>
+                  <div class="mb-6 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                      ISO Values
+                    </h3>
                   </div>
                   <div class="h-64 w-full">
                     <canvas bind:this={isoCanvas}></canvas>
@@ -590,10 +651,17 @@
 
               {#if photoStats.settings?.apertures && photoStats.settings.apertures.length > 0}
                 <div
-                  class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
-                  in:fly={{ y: 20, duration: 400, delay: 550, easing: cubicOut }}>
-                  <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900">Apertures</h3>
+                  class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
+                  in:fly={{
+                    y: 20,
+                    duration: 400,
+                    delay: 550,
+                    easing: cubicOut,
+                  }}>
+                  <div class="mb-6 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                      Apertures
+                    </h3>
                   </div>
                   <div class="h-64 w-full">
                     <canvas bind:this={aperturesCanvas}></canvas>
@@ -603,10 +671,17 @@
 
               {#if photoStats.settings?.focalLengths && photoStats.settings.focalLengths.length > 0}
                 <div
-                  class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
-                  in:fly={{ y: 20, duration: 400, delay: 600, easing: cubicOut }}>
-                  <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900">Focal Lengths</h3>
+                  class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
+                  in:fly={{
+                    y: 20,
+                    duration: 400,
+                    delay: 600,
+                    easing: cubicOut,
+                  }}>
+                  <div class="mb-6 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                      Focal Lengths
+                    </h3>
                   </div>
                   <div class="h-64 w-full">
                     <canvas bind:this={focalLengthsCanvas}></canvas>
@@ -617,10 +692,12 @@
           </div>
         {/if}
 
-        <div class="text-center py-8" in:fade={{ duration: 300, delay: 750 }}>
+        <div
+          class="py-8 text-center"
+          in:fade={{ duration: 300, delay: 750 }}>
           <p class="text-sm text-gray-500">
-            Statistics generated from {photoStats.totalPhotos} photos •
-            Last updated: {new Date().toLocaleDateString()}
+            Statistics generated from {photoStats.totalPhotos} photos • Last updated:
+            {new Date().toLocaleDateString()}
           </p>
         </div>
       </div>
