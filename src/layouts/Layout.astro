@@ -38,11 +38,6 @@ const { title, description, ogImage } = Astro.props;
   };
   let isViewTransition = false;
 
-  if (!sessionStorage.getItem("performed-identify")) {
-    umami.identify(identify());
-    sessionStorage.setItem("performed-identify", "true");
-  }
-
   document.addEventListener("astro:before-preparation", () => {
     isViewTransition = true;
     if (window.location.pathname === "/") {
@@ -68,6 +63,21 @@ const { title, description, ogImage } = Astro.props;
   window.addEventListener("beforeunload", () => {
     if (!isViewTransition) {
       sessionStorage.removeItem("homepage-scroll");
+    }
+  });
+
+  function waitForUmami(callback) {
+    if (typeof umami !== "undefined") {
+      callback();
+    } else {
+      setTimeout(() => waitForUmami(callback), 100);
+    }
+  }
+
+  waitForUmami(() => {
+    if (!sessionStorage.getItem("performed-identify")) {
+      umami.identify(identify());
+      sessionStorage.setItem("performed-identify", "true");
     }
   });
 </script>
