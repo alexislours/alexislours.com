@@ -1,5 +1,5 @@
 ---
-import { buildId } from "../constants/meta";
+import { buildId, version } from "../constants/meta";
 
 const currentYear = new Date().getFullYear();
 const startYear = 2021;
@@ -15,10 +15,35 @@ const yearRange =
     <div class="py-6">
       <div class="text-center">
         <p class="text-sm text-gray-600">
-          © {yearRange} Alexis Lours. All rights reserved.
+          © {yearRange} Alexis Lours. Some rights reserved.
+        </p>
+        <p class="text-sm text-gray-600">
+          Photos: <a
+            class="underline"
+            data-umami-event="Click photo license footer"
+            href="https://creativecommons.org/licenses/by/4.0/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >CC BY 4.0</a
+          > · Code: <a
+            class="underline"
+            data-umami-event="Click code license footer"
+            href="https://git.alexislours.com/alexislours/alexislours.com/src/branch/main/LICENSE"
+            target="_blank"
+            rel="noopener noreferrer"
+            >MIT</a
+          >
         </p>
         <p class="mt-2 text-xs text-gray-500">
-          Build ID: {buildId}
+          <a
+            class="underline"
+            data-umami-event="Click version footer"
+            href={`https://git.alexislours.com/alexislours/alexislours.com/releases/tag/v${version}`}
+            target="_blank"
+            rel="noopener noreferrer">
+            v{version}</a
+          >
+          - Build {buildId}
         </p>
       </div>
     </div>

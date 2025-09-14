@@ -303,9 +303,9 @@
 
         if (!properties) return;
 
-        const photo = photos.find(p => p.id === properties.id);
+        const photo = photos.find((p) => p.id === properties.id);
         const maxWidth = 280;
-        const aspectRatio = photo ? photo.width_o / photo.height_o : 3 / 2; 
+        const aspectRatio = photo ? photo.width_o / photo.height_o : 3 / 2;
         const imageHeight = maxWidth / aspectRatio;
 
         const popupHTML = `
