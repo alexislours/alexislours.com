@@ -303,17 +303,19 @@
 
         if (!properties) return;
 
+        const photo = photos.find(p => p.id === properties.id);
         const maxWidth = 280;
-        const imageHeight = 180;
+        const aspectRatio = photo ? photo.width_o / photo.height_o : 3 / 2; 
+        const imageHeight = maxWidth / aspectRatio;
 
         const popupHTML = `
           <div class="p-0 max-w-[${maxWidth}px]">
-            <div class="relative">
+            <div class="relative bg-gray-200 rounded-t-lg overflow-hidden" style="height: ${imageHeight}px;">
               <img 
                 src="${properties.url_500}" 
                 alt="${properties.description || properties.title}"
-                class="w-full h-[${imageHeight}px] object-cover rounded-t-lg"
-                loading="lazy"
+                class="w-full h-full object-cover relative z-10"
+                style="display: block;"
               />
             </div>
             <div class="p-4">
@@ -323,16 +325,6 @@
                 <span>📅</span>
                 <span>${formatDate(new Date(properties.date_taken))}</span>
               </div>
-              ${
-                properties.locationName
-                  ? `
-                <div class="text-xs text-gray-500 mb-3 flex items-start gap-1">
-                  <span>📍</span>
-                  <span class="break-words">${properties.locationName}</span>
-                </div>
-              `
-                  : ""
-              }
               <a 
                 href="/photo/${properties.id}/"
                 class="inline-block bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-2 rounded transition-colors duration-200 w-full text-center"
