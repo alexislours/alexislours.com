@@ -165,7 +165,7 @@ Each photo is returned as an object of this format:
 Returns an array of all photo objects.
 
 ```http
-GET /api/photos/all.json
+GET /api/photos/all
 ```
 
 #### Get a photo by ID
@@ -173,5 +173,5 @@ GET /api/photos/all.json
 Returns a single photo from its ID.
 
 ```http
-GET /api/photos/${id}.json
+GET /api/photos/${id}
 ```
