@@ -1,7 +1,7 @@
 {
   "name": "alexislours.com",
   "type": "module",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "license": "MIT",
   "scripts": {
     "dev": "astro dev",
