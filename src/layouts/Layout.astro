@@ -31,7 +31,17 @@ const { title, description, ogImage } = Astro.props;
 </html>
 
 <script is:inline>
+  const identify = () => {
+    return {
+      referer: document.referrer,
+    };
+  };
   let isViewTransition = false;
+
+  if (!sessionStorage.getItem("performed-identify")) {
+    umami.identify(identify());
+    sessionStorage.setItem("performed-identify", "true");
+  }
 
   document.addEventListener("astro:before-preparation", () => {
     isViewTransition = true;
