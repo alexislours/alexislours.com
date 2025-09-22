@@ -1,9 +1,15 @@
-export const mapExifs = (
+/**
+ * Maps and extracts useful EXIF data from raw EXIF object
+ * @param exifs - The raw EXIF data object from Flickr API
+ * @returns Object containing commonly used EXIF values
+ */
+export function mapExifs(
   exifs:
     | Record<string, { value: string; clean?: string; raw?: string }>
     | undefined
-): Record<string, string | number> => {
-  if (!exifs) {
+    | null
+): Record<string, string | number> {
+  if (!exifs || typeof exifs !== "object") {
     return {};
   }
 
@@ -15,4 +21,4 @@ export const mapExifs = (
     focalLength: exifs.FocalLength?.clean || exifs.FocalLength?.value,
     iso: exifs.ISO?.clean || exifs.ISO?.value,
   };
-};
+}

@@ -1,8 +1,8 @@
 ---
 import { getCollection } from "astro:content";
 import { Picture, getImage } from "astro:assets";
-import Layout from "../../layouts/Layout.astro";
-import MapBox from "../../components/MapBox.astro";
+import Layout from "@layouts/Layout.astro";
+import MapBox from "@components/MapBox.astro";
 
 export async function getStaticPaths() {
   const allPhotos = await getCollection("photos");
@@ -20,8 +20,8 @@ export async function getStaticPaths() {
     description: photo.data.description || "",
     width_o: photo.data.imageUrls.original?.width as number,
     height_o: photo.data.imageUrls.original?.height as number,
-    latitude: photo.data.latitude as string,
-    longitude: photo.data.longitude as string,
+    latitude: photo.data.latitude,
+    longitude: photo.data.longitude,
     locationName: (photo.data as { locationName?: string }).locationName,
     tags: (photo.data as { tags?: string[] }).tags || [],
     exif: photo.data.exif as Record<
@@ -93,21 +93,14 @@ const imageStructuredData: any = {
   representativeOfPage: true,
 };
 
-if (
-  currentPhoto.latitude &&
-  currentPhoto.longitude &&
-  currentPhoto.latitude !== "0" &&
-  currentPhoto.longitude !== "0"
-) {
-  imageStructuredData.contentLocation = {
-    "@type": "Place",
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: parseFloat(currentPhoto.latitude),
-      longitude: parseFloat(currentPhoto.longitude),
-    },
-  };
-}
+imageStructuredData.contentLocation = {
+  "@type": "Place",
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: currentPhoto.latitude,
+    longitude: currentPhoto.longitude,
+  },
+};
 
 const title = "Alexis LOURS - " + currentPhoto.title;
 const description = currentPhoto.description;
@@ -451,24 +444,17 @@ const ogImage = currentPhoto.url_o;
             ) : null
           }
 
-          {
-            currentPhoto.latitude &&
-            currentPhoto.longitude &&
-            currentPhoto.latitude !== "0" &&
-            currentPhoto.longitude !== "0" ? (
-              <div>
-                <h2 class="mb-2 text-sm font-medium text-gray-600">Location</h2>
-                <MapBox
-                  latitude={currentPhoto.latitude}
-                  longitude={currentPhoto.longitude}
-                  locationName={currentPhoto.locationName}
-                  width={300}
-                  height={300}
-                  zoom={13}
-                />
-              </div>
-            ) : null
-          }
+          <div>
+            <h2 class="mb-2 text-sm font-medium text-gray-600">Location</h2>
+            <MapBox
+              latitude={currentPhoto.latitude}
+              longitude={currentPhoto.longitude}
+              locationName={currentPhoto.locationName}
+              width={300}
+              height={300}
+              zoom={13}
+            />
+          </div>
         </div>
       </aside>
     </div>

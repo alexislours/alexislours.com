@@ -1,5 +1,5 @@
 import { getCollection } from "astro:content";
-import { mapExifs } from "../../../utils/map-exifs";
+import { mapExifs } from "@utils/exif";
 
 export async function getStaticPaths() {
   const allPhotos = await getCollection("photos");

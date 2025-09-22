@@ -1,36 +1,29 @@
 ---
 import { getCollection } from "astro:content";
-import Layout from "../layouts/Layout.astro";
-import PhotoGrid from "../components/PhotoGrid.astro";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
+import Layout from "@layouts/Layout.astro";
+import PhotoGrid from "@components/PhotoGrid.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
 import Search from "astro-pagefind/components/Search";
 
 const allPhotos = await getCollection("photos");
 const sortedPhotos = allPhotos.sort(
   (a, b) =>
-    new Date(b.data.date_taken as Date).getTime() -
-    new Date(a.data.date_taken as Date).getTime()
+    new Date(b.data.date_taken).getTime() -
+    new Date(a.data.date_taken).getTime()
 );
 
 const photos = sortedPhotos.map((photo) => ({
   id: photo.id,
-  url_o: photo.data.imageUrls.original?.url as string,
+  url_o: photo.data.imageUrls.original.url,
   title: photo.data.title,
-  date_taken: photo.data.date_taken as Date,
+  date_taken: photo.data.date_taken,
   description: photo.data.description || "",
-  width_o: photo.data.imageUrls.original?.width as number,
-  height_o: photo.data.imageUrls.original?.height as number,
-  latitude: photo.data.latitude as string,
-  longitude: photo.data.longitude as string,
-  exif: photo.data.exif as Record<
-    string,
-    {
-      value: string;
-      clean?: string;
-      raw?: string;
-    }
-  >,
+  width_o: photo.data.imageUrls.original.width,
+  height_o: photo.data.imageUrls.original.height,
+  latitude: photo.data.latitude,
+  longitude: photo.data.longitude,
+  exif: photo.data.exif,
 }));
 
 const title = "Alexis LOURS";
