@@ -1,3 +1,5 @@
+export const BASE_URL = "https://api.flickr.com/services/rest/";
+
 export const SIZES = {
   sq: "sq_75px",
   q: "sq_150px",
@@ -13,7 +15,7 @@ export const SIZES = {
   o: "original",
 } as const;
 
-const SIZES_AS_EXTRA_STRING = Object.keys(SIZES)
+export const SIZES_AS_EXTRA_STRING = Object.keys(SIZES)
   .map((k) => `url_${k}`)
   .join(",");
 
@@ -22,4 +24,8 @@ export const DEFAULT_OPTIONS = {
   per_page: "300",
 };
 
-export const BASE_URL = "https://api.flickr.com/services/rest/";
+export const API_CONFIG = {
+  MAX_RETRIES: 3,
+  RETRY_DELAY: 1000,
+  BATCH_SIZE: 10,
+} as const;

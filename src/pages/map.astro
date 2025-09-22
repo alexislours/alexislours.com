@@ -1,9 +1,9 @@
 ---
 import { getCollection } from "astro:content";
-import Layout from "../layouts/Layout.astro";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
-import InteractiveMap from "../components/InteractiveMap.svelte";
+import Layout from "@layouts/Layout.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import InteractiveMap from "@components/InteractiveMap.svelte";
 
 const mapboxToken = import.meta.env.MAPBOX_PUBLIC_ACCESS_TOKEN;
 
@@ -18,16 +18,15 @@ const photosWithLocation = allPhotos
     id: photo.id,
     title: photo.data.title,
     description: photo.data.description || "",
-    date_taken: photo.data.date_taken as Date,
-    url_o: photo.data.imageUrls.original?.url as string,
+    date_taken: photo.data.date_taken,
+    url_o: photo.data.imageUrls.original.url,
     url_500:
-      photo.data.imageUrls["500px"]?.url ||
-      (photo.data.imageUrls.original?.url as string),
-    width_o: photo.data.imageUrls.original?.width as number,
-    height_o: photo.data.imageUrls.original?.height as number,
-    latitude: parseFloat(photo.data.latitude as string),
-    longitude: parseFloat(photo.data.longitude as string),
-    locationName: (photo.data as { locationName?: string }).locationName,
+      photo.data.imageUrls["500px"]?.url || photo.data.imageUrls.original.url,
+    width_o: photo.data.imageUrls.original.width,
+    height_o: photo.data.imageUrls.original.height,
+    latitude: photo.data.latitude,
+    longitude: photo.data.longitude,
+    locationName: photo.data.locationName,
   }))
   .sort(
     (a, b) =>
