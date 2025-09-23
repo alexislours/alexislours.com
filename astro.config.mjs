@@ -1,12 +1,8 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-
 import tailwindcss from '@tailwindcss/vite';
-
 import sitemap from '@astrojs/sitemap';
-
 import svelte from '@astrojs/svelte';
-
 import pagefind from 'astro-pagefind';
 
 // https://astro.build/config
