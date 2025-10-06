@@ -37,6 +37,7 @@ const { title, description, ogImage } = Astro.props;
       referer: document.referrer,
       language: navigator.language,
       languages: navigator.languages,
+      userAgent: window.navigator.userAgent
     };
   };
   let isViewTransition = false;
