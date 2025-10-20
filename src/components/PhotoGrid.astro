@@ -91,9 +91,11 @@ const { photos } = Astro.props;
   .photo-fade.loaded {
     opacity: 1;
   }
+</style>
 
+<style is:global>
   .no-js .photo-fade {
-    opacity: 1;
+    opacity: 1 !important;
   }
 </style>
 
