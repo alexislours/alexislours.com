@@ -58,14 +58,6 @@ export const links: LinkItem[] = [
     category: "social",
   },
   {
-    title: "Bluesky",
-    url: "https://bsky.app/profile/alexislours.com",
-    description: "My Bluesky profile",
-    icon: "bsky",
-    color: "#0285FF",
-    category: "social",
-  },
-  {
     title: "Mail",
     url: "mailto:alexislours@protonmail.com",
     description: "Email me",

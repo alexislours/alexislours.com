@@ -7,8 +7,6 @@ My photography portfolio built with Astro, Svelte and TailwindCSS.
 This project's code is under the
 [MIT](https://choosealicense.com/licenses/mit/) license.
 
-All the photos found on the [site](https://alexislours.com) are available under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
 ## Features
 
 - **Photo Gallery**: Grid layout displaying photography with image optimization
