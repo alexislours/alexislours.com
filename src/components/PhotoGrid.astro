@@ -13,9 +13,10 @@ interface Photo {
 
 interface Props {
   photos: Photo[];
+  basePath?: string;
 }
 
-const { photos } = Astro.props;
+const { photos, basePath = "/photo" } = Astro.props;
 ---
 
 <section class="section">
@@ -27,7 +28,7 @@ const { photos } = Astro.props;
 
       return (
         <a
-          href={`/photo/${photo.id}/`}
+          href={`${basePath}/${photo.id}/`}
           class="group link"
           data-umami-event="Click photo in grid"
           data-umami-event-id={photo.id}

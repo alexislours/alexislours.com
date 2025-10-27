@@ -8,6 +8,14 @@ const photos = defineCollection({
   }),
 });
 
+const otherPictures = defineCollection({
+  loader: createPhotoLoader({
+    username: "alexisloursphotos",
+    photoset_id: "72177720329950379",
+  }),
+});
+
 export const collections = {
   photos,
+  otherPictures,
 };
