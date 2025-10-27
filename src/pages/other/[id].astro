@@ -5,7 +5,7 @@ import Layout from "@layouts/Layout.astro";
 import FullScreenPhoto from "@components/FullScreenPhoto.astro";
 
 export async function getStaticPaths() {
-  const allPhotos = await getCollection("photos");
+  const allPhotos = await getCollection("otherPictures");
   const sortedPhotos = allPhotos.sort(
     (a, b) =>
       new Date(b.data.date_taken as Date).getTime() -
@@ -66,8 +66,6 @@ const imageStructuredData: any = {
   datePublished: currentPhoto.date_taken.toISOString(),
   width: currentPhoto.width_o,
   height: currentPhoto.height_o,
-  license: "https://creativecommons.org/licenses/by/4.0/",
-  acquireLicensePage: "https://creativecommons.org/licenses/by/4.0/",
   creator: {
     "@type": "Person",
     name: "Alexis LOURS",
@@ -76,8 +74,7 @@ const imageStructuredData: any = {
     "@type": "Person",
     name: "Alexis LOURS",
   },
-  copyrightNotice:
-    "© Alexis LOURS. Licensed under Creative Commons Attribution 4.0 International",
+  copyrightNotice: "© Alexis LOURS. All rights reserved.",
   creditText: "Alexis LOURS",
   encodingFormat: "image/jpeg",
   representativeOfPage: true,
@@ -106,7 +103,7 @@ const ogImage = currentPhoto.url_o;
       prevId && (
         <link
           rel="prefetch"
-          href={`/photo/${prevId}/`}
+          href={`/other/${prevId}/`}
         />
       )
     }
@@ -114,17 +111,13 @@ const ogImage = currentPhoto.url_o;
       nextId && (
         <link
           rel="prefetch"
-          href={`/photo/${nextId}/`}
+          href={`/other/${nextId}/`}
         />
       )
     }
-    <link
-      rel="license"
-      href="https://creativecommons.org/licenses/by/4.0/"
-    />
     <meta
       name="dc.rights"
-      content="Creative Commons Attribution 4.0 International"
+      content="© Alexis LOURS. All rights reserved."
     />
     <meta
       name="dc.creator"
@@ -141,9 +134,9 @@ const ogImage = currentPhoto.url_o;
     totalPhotos={photos.length}
     prevId={prevId}
     nextId={nextId}
-    basePath="/photo"
-    backUrl="/"
-    backLabel="home"
-    showLicense={true}
+    basePath="/other"
+    backUrl="/other"
+    backLabel="other pictures"
+    showLicense={false}
   />
 </Layout>

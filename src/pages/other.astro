@@ -1,0 +1,123 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@layouts/Layout.astro";
+import PhotoGrid from "@components/PhotoGrid.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+
+const allPhotos = await getCollection("otherPictures");
+const sortedPhotos = allPhotos.sort(
+  (a, b) =>
+    new Date(b.data.date_taken).getTime() -
+    new Date(a.data.date_taken).getTime()
+);
+
+const photos = sortedPhotos.map((photo) => ({
+  id: photo.id,
+  url_o: photo.data.imageUrls.original.url,
+  title: photo.data.title,
+  date_taken: photo.data.date_taken,
+  description: photo.data.description || "",
+  width_o: photo.data.imageUrls.original.width,
+  height_o: photo.data.imageUrls.original.height,
+  latitude: photo.data.latitude,
+  longitude: photo.data.longitude,
+  exif: photo.data.exif,
+}));
+
+const title = "Other Pictures - Alexis LOURS";
+const description = "Other pictures from my photography collection.";
+const ogImage = photos[0]?.url_o;
+---
+
+<Layout
+  title={title}
+  description={description}
+  ogImage={ogImage}>
+  <main>
+    <Header title="Other Pictures" />
+
+    <div class="mx-auto max-w-7xl px-4 py-6">
+      <PhotoGrid
+        photos={photos}
+        basePath="/other"
+      />
+    </div>
+  </main>
+
+  <button
+    id="scroll-to-top"
+    data-umami-event="Scroll to top"
+    class="pointer-events-none fixed right-6 bottom-6 z-50 h-12 w-12 translate-y-4 cursor-pointer rounded-full bg-black/80 text-white opacity-0 shadow-lg transition-all duration-300 hover:bg-black"
+    title="Scroll to top"
+    aria-label="Scroll to top">
+    <svg
+      class="mx-auto h-6 w-6"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M5 10l7-7m0 0l7 7m-7-7v18"
+      ></path>
+    </svg>
+  </button>
+
+  <Footer />
+</Layout>
+
+<script>
+  function setupScrollToTop() {
+    const scrollToTopButton = document.getElementById("scroll-to-top");
+    if (!scrollToTopButton) return;
+
+    function toggleScrollButton() {
+      if (!scrollToTopButton) return;
+
+      if (window.scrollY > 300) {
+        scrollToTopButton.classList.remove(
+          "opacity-0",
+          "translate-y-4",
+          "pointer-events-none"
+        );
+        scrollToTopButton.classList.add(
+          "opacity-100",
+          "translate-y-0",
+          "pointer-events-auto"
+        );
+      } else {
+        scrollToTopButton.classList.remove(
+          "opacity-100",
+          "translate-y-0",
+          "pointer-events-auto"
+        );
+        scrollToTopButton.classList.add(
+          "opacity-0",
+          "translate-y-4",
+          "pointer-events-none"
+        );
+      }
+    }
+
+    window.addEventListener("scroll", toggleScrollButton);
+
+    scrollToTopButton.addEventListener("click", () => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    });
+
+    toggleScrollButton();
+  }
+
+  setupScrollToTop();
+
+  document.addEventListener("astro:after-swap", () => {
+    if (window.location.pathname === "/other") {
+      setupScrollToTop();
+    }
+  });
+</script>

@@ -23,7 +23,7 @@
     "astro-pagefind": "^1.8.5",
     "date-fns": "^4.1.0",
     "mapbox-gl": "^3.16.0",
-    "svelte": "^5.41.2",
+    "svelte": "^5.42.2",
     "tailwindcss": "^4.1.16",
     "typescript": "^5.9.3"
   },
@@ -36,6 +36,6 @@
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-svelte": "^3.4.0",
     "prettier-plugin-tailwindcss": "^0.7.1",
-    "wrangler": "^4.44.0"
+    "wrangler": "^4.45.0"
   }
 }
