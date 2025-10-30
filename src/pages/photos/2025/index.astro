@@ -1,0 +1,513 @@
+---
+import { getCollection } from "astro:content";
+import { Picture, getImage } from "astro:assets";
+import Layout from "@layouts/Layout.astro";
+
+const allPhotos = await getCollection("photos2025");
+const sortedPhotos = allPhotos.sort(
+  (a, b) =>
+    new Date(b.data.date_taken).getTime() -
+    new Date(a.data.date_taken).getTime()
+);
+
+const title = "2025 — Alexis LOURS";
+const description = "My best pictures taken in 2025.";
+const ogImage = sortedPhotos[0]?.data.imageUrls.original.url;
+
+const optimizedBackgrounds = await Promise.all(
+  sortedPhotos.map(async (photo) => {
+    const thumbUrl = photo.data.imageUrls["240px"]?.url || photo.data.imageUrls["320px"]?.url || photo.data.imageUrls.original.url;
+    const thumbWidth = photo.data.imageUrls["240px"]?.width || photo.data.imageUrls["320px"]?.width || photo.data.imageUrls.original.width;
+    const thumbHeight = photo.data.imageUrls["240px"]?.height || photo.data.imageUrls["320px"]?.height || photo.data.imageUrls.original.height;
+
+    const optimizedImage = await getImage({
+      src: thumbUrl,
+      width: 400,
+      height: Math.round(400 * (thumbHeight / thumbWidth)),
+      format: "avif",
+    });
+
+    return optimizedImage.src;
+  })
+);
+---
+
+<Layout title={title} description={description} ogImage={ogImage}>
+  {optimizedBackgrounds[0] && <link rel="preload" as="image" href={optimizedBackgrounds[0]} fetchpriority="high" />}
+  {optimizedBackgrounds[1] && <link rel="prefetch" as="image" href={optimizedBackgrounds[1]} />}
+  <div class="experience" data-optimized-bgs={JSON.stringify(optimizedBackgrounds)}>
+    <section class="hero">
+      <div class="hero-content">
+        <h1 class="year-title">2025</h1>
+      </div>
+      <div class="scroll-indicator">
+        <div class="scroll-text">Scroll to explore</div>
+        <div class="scroll-arrow"></div>
+      </div>
+      <div class="hero-gradient"></div>
+    </section>
+
+    <div class="photo-journey">
+      {
+        sortedPhotos.map((photo, index) => {
+          const isPortrait =
+            photo.data.imageUrls.original.orientation === "portrait";
+          const isLandscape =
+            photo.data.imageUrls.original.orientation === "landscape";
+
+          const optimizedBgUrl = optimizedBackgrounds[index];
+
+          return (
+            <div
+              class={`photo-section ${isPortrait ? "portrait" : ""} ${isLandscape ? "landscape" : ""}`}
+              data-index={index}
+              data-thumb-url={optimizedBgUrl}
+              data-main-url={photo.data.imageUrls.original.url}>
+              <div class="photo-bg" style={`background-image: url(${optimizedBgUrl})`}></div>
+              <div class="photo-container">
+                <div class="photo-wrapper">
+                  <Picture
+                    src={photo.data.imageUrls.original.url}
+                    alt={photo.data.description || photo.data.title || "Photo"}
+                    formats={["avif"]}
+                    loading={index < 3 ? "eager" : "lazy"}
+                    fetchpriority={index < 3 ? "high" : "auto"}
+                    fallbackFormat="jpg"
+                    width={photo.data.imageUrls.original.width}
+                    height={photo.data.imageUrls.original.height}
+                    class="photo-img"
+                    sizes="100vw"
+                    widths={[800, 1200, 1600, 2000, 2400]}
+                  />
+                </div>
+                {(photo.data.title ||
+                  photo.data.locationName ||
+                  photo.data.description) && (
+                  <div class="photo-meta">
+                    {photo.data.title && (
+                      <div class="photo-title">{photo.data.title}</div>
+                    )}
+                    {photo.data.locationName && (
+                      <div class="photo-location">{photo.data.locationName}</div>
+                    )}
+                    {photo.data.description && (
+                      <div class="photo-description">
+                        {photo.data.description}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+
+  </div>
+</Layout>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .experience {
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+    position: relative;
+    height: 100vh;
+    scroll-snap-type: y mandatory;
+    overflow-y: scroll;
+  }
+
+  .hero {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .hero-content {
+    text-align: center;
+    z-index: 2;
+    position: relative;
+    opacity: 0;
+    animation: fadeInHero 2s ease-out forwards;
+  }
+
+  @keyframes fadeInHero {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .year-title {
+    font-size: clamp(4rem, 15vw, 12rem);
+    font-weight: 100;
+    letter-spacing: 0.2em;
+    margin: 0;
+    color: #fff;
+  }
+
+  .scroll-indicator {
+    position: absolute;
+    bottom: 4rem;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    animation: fadeIn 2s 1s ease-out forwards;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .scroll-text {
+    font-size: clamp(0.75rem, 1.5vw, 0.875rem);
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .scroll-arrow {
+    width: 2px;
+    height: 60px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(255, 255, 255, 0.8),
+      transparent
+    );
+    animation: scrollDown 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollDown {
+    0%,
+    100% {
+      transform: translateY(-20px);
+      opacity: 0;
+    }
+    50% {
+      transform: translateY(20px);
+      opacity: 1;
+    }
+  }
+
+  .hero-gradient {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at center,
+      transparent 0%,
+      rgba(0, 0, 0, 0.3) 100%
+    );
+    pointer-events: none;
+  }
+
+  .photo-journey {
+    position: relative;
+    z-index: 1;
+  }
+
+  .photo-section {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .photo-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(60px) brightness(0.4);
+    transform: scale(1.2);
+    z-index: 0;
+  }
+
+  .photo-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .photo-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.6);
+    max-width: 100%;
+    max-height: calc(100vh - 12rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .photo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    max-height: calc(100vh - 12rem);
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .photo-container.visible .photo-img {
+    opacity: 1;
+  }
+
+  .photo-meta {
+    margin-top: 2rem;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+    max-width: 90%;
+  }
+
+  .photo-container.visible .photo-meta {
+    opacity: 1;
+  }
+
+  .photo-title {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s;
+  }
+
+  .photo-container.visible .photo-title {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .photo-location {
+    font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0;
+    margin-bottom: 1rem;
+    transform: translateY(10px);
+    transition: opacity 0.8s ease 0.6s, transform 0.8s ease 0.6s;
+  }
+
+  .photo-container.visible .photo-location {
+    opacity: 0.6;
+    transform: translateY(0);
+  }
+
+  .photo-description {
+    font-size: clamp(1rem, 1.5vw, 1.125rem);
+    font-weight: 300;
+    line-height: 1.8;
+    max-width: 600px;
+    margin: 0 auto;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.8s ease 0.7s, transform 0.8s ease 0.7s;
+  }
+
+  .photo-container.visible .photo-description {
+    opacity: 0.8;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    .photo-section {
+      padding: 3rem 1rem;
+    }
+
+    .year-title {
+      letter-spacing: 0.15em;
+    }
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #000;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+</style>
+
+<script>
+  const preloadedImages = new Set<string>();
+
+  function preloadImage(url: string): Promise<void> {
+    if (preloadedImages.has(url)) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        preloadedImages.add(url);
+        resolve();
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
+  function preloadNextImages(currentIndex: number) {
+    const sections = document.querySelectorAll(".photo-section");
+    const experience = document.querySelector(".experience") as HTMLElement;
+    const optimizedBgs = experience?.dataset.optimizedBgs ? JSON.parse(experience.dataset.optimizedBgs) : [];
+
+    for (let i = 1; i <= 3; i++) {
+      const nextIndex = currentIndex + i;
+      if (nextIndex < sections.length) {
+        if (optimizedBgs[nextIndex]) {
+          preloadImage(optimizedBgs[nextIndex]);
+        }
+
+        const nextSection = sections[nextIndex] as HTMLElement;
+        const img = nextSection?.querySelector("img");
+        if (img && img.loading === "lazy") {
+          img.loading = "eager";
+        }
+      }
+    }
+  }
+
+  function initPhotoReveal() {
+    const photoContainers = document.querySelectorAll(".photo-container");
+    const photoSections = document.querySelectorAll(".photo-section");
+    const hero = document.querySelector(".hero");
+    const experience = document.querySelector(".experience") as HTMLElement;
+    const optimizedBgs = experience?.dataset.optimizedBgs ? JSON.parse(experience.dataset.optimizedBgs) : [];
+
+    if (photoSections.length > 0) {
+      const firstSection = photoSections[0] as HTMLElement;
+      const firstContainer = firstSection.querySelector(".photo-container") as HTMLElement;
+
+      if (firstContainer) {
+        firstContainer.classList.add("visible");
+      }
+
+      for (let i = 0; i < Math.min(4, optimizedBgs.length); i++) {
+        if (optimizedBgs[i]) {
+          const bgImg = new Image();
+          bgImg.src = optimizedBgs[i];
+          preloadedImages.add(optimizedBgs[i]);
+        }
+      }
+
+      preloadNextImages(0);
+    }
+
+    if (hero) {
+      const heroObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              preloadNextImages(0);
+            }
+          });
+        },
+        {
+          threshold: 0.5,
+        }
+      );
+      heroObserver.observe(hero);
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const container = entry.target as HTMLElement;
+            const section = container.closest(".photo-section") as HTMLElement;
+
+            container.classList.add("visible");
+
+            if (section) {
+              const currentIndex = parseInt(section.dataset.index || "0", 10);
+              preloadNextImages(currentIndex);
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.5,
+      }
+    );
+
+    photoContainers.forEach((container) => {
+      observer.observe(container);
+    });
+
+    const earlyObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const section = entry.target as HTMLElement;
+            const sectionIndex = parseInt(section.dataset.index || "0", 10);
+
+            if (optimizedBgs[sectionIndex]) {
+              preloadImage(optimizedBgs[sectionIndex]);
+            }
+          }
+        });
+      },
+      {
+        threshold: 0,
+        rootMargin: "100% 0px 100% 0px",
+      }
+    );
+
+    photoSections.forEach((section) => {
+      earlyObserver.observe(section);
+    });
+  }
+
+  initPhotoReveal();
+
+  document.addEventListener("astro:after-swap", () => {
+    initPhotoReveal();
+  });
+</script>
+</Layout>
