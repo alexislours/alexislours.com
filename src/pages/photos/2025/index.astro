@@ -10,7 +10,7 @@ const sortedPhotos = allPhotos.sort(
     new Date(a.data.date_taken).getTime()
 );
 
-const title = "2025 — Alexis LOURS";
+const title = "2025 - Alexis LOURS";
 const description = "My best pictures taken in 2025.";
 const ogImage = sortedPhotos[0]?.data.imageUrls.original.url;
 
@@ -122,6 +122,7 @@ const optimizedBackgrounds = await Promise.all(
     height: 100vh;
     scroll-snap-type: y mandatory;
     overflow-y: scroll;
+    -webkit-transform: translate3d(0, 0, 0);
   }
 
   .hero {
@@ -133,6 +134,7 @@ const optimizedBackgrounds = await Promise.all(
     overflow: hidden;
     scroll-snap-align: start;
     scroll-snap-stop: always;
+    -webkit-transform: translate3d(0, 0, 0);
   }
 
   .hero-content {
@@ -233,6 +235,7 @@ const optimizedBackgrounds = await Promise.all(
     position: relative;
     scroll-snap-align: start;
     scroll-snap-stop: always;
+    -webkit-transform: translate3d(0, 0, 0);
   }
 
   .photo-bg {
@@ -243,6 +246,7 @@ const optimizedBackgrounds = await Promise.all(
     filter: blur(60px) brightness(0.4);
     transform: scale(1.2);
     z-index: 0;
+    -webkit-transform: scale(1.2) translate3d(0, 0, 0);
   }
 
   .photo-container {
