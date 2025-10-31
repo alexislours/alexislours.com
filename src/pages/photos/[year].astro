@@ -3,15 +3,40 @@ import { getCollection } from "astro:content";
 import { Picture, getImage } from "astro:assets";
 import Layout from "@layouts/Layout.astro";
 
-const allPhotos = await getCollection("photos2025");
-const sortedPhotos = allPhotos.sort(
+export async function getStaticPaths() {
+  const allPhotos = await getCollection("photoShowcase");
+
+  const yearsSet = new Set<number>();
+  allPhotos.forEach((photo) => {
+    const year = new Date(photo.data.date_taken).getFullYear();
+    yearsSet.add(year);
+  });
+
+  const availableYears = Array.from(yearsSet).sort((a, b) => b - a);
+
+  return availableYears.map((year) => ({
+    params: { year: year.toString() },
+  }));
+}
+
+const { year } = Astro.params;
+const yearNum = parseInt(year);
+
+const allPhotos = await getCollection("photoShowcase");
+
+const filteredPhotos = allPhotos.filter((photo) => {
+  const photoYear = new Date(photo.data.date_taken).getFullYear();
+  return photoYear === yearNum;
+});
+
+const sortedPhotos = filteredPhotos.sort(
   (a, b) =>
     new Date(b.data.date_taken).getTime() -
     new Date(a.data.date_taken).getTime()
 );
 
-const title = "2025 - Alexis LOURS";
-const description = "My best pictures taken in 2025.";
+const title = `${year} - Alexis LOURS`;
+const description = `My best pictures taken in ${year}.`;
 const ogImage = sortedPhotos[0]?.data.imageUrls.original.url;
 
 const optimizedBackgrounds = await Promise.all(
@@ -38,7 +63,7 @@ const optimizedBackgrounds = await Promise.all(
   <div class="experience" data-optimized-bgs={JSON.stringify(optimizedBackgrounds)}>
     <section class="hero">
       <div class="hero-content">
-        <h1 class="year-title">2025</h1>
+        <h1 class="year-title">{year}</h1>
       </div>
       <div class="scroll-indicator">
         <div class="scroll-text">Scroll to explore</div>
@@ -62,8 +87,15 @@ const optimizedBackgrounds = await Promise.all(
               class={`photo-section ${isPortrait ? "portrait" : ""} ${isLandscape ? "landscape" : ""}`}
               data-index={index}
               data-thumb-url={optimizedBgUrl}
-              data-main-url={photo.data.imageUrls.original.url}>
-              <div class="photo-bg" style={`background-image: url(${optimizedBgUrl})`}></div>
+              data-main-url={photo.data.imageUrls.original.url}
+              style={`z-index: ${1000 - index}`}>
+              <img
+                src={optimizedBgUrl}
+                alt=""
+                class="photo-bg"
+                loading={index < 2 ? "eager" : "lazy"}
+                aria-hidden="true"
+              />
               <div class="photo-container">
                 <div class="photo-wrapper">
                   <Picture
@@ -241,11 +273,13 @@ const optimizedBackgrounds = await Promise.all(
   .photo-bg {
     position: absolute;
     inset: 0;
-    background-size: cover;
-    background-position: center;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
     filter: blur(60px) brightness(0.4);
     transform: scale(1.2);
-    z-index: 0;
+    z-index: -1;
     -webkit-transform: scale(1.2) translate3d(0, 0, 0);
   }
 
@@ -257,7 +291,6 @@ const optimizedBackgrounds = await Promise.all(
     align-items: center;
     justify-content: center;
     position: relative;
-    z-index: 1;
   }
 
   .photo-wrapper {
@@ -292,6 +325,8 @@ const optimizedBackgrounds = await Promise.all(
     opacity: 0;
     transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
     max-width: 90%;
+    position: relative;
+    z-index: 10;
   }
 
   .photo-container.visible .photo-meta {
@@ -325,7 +360,7 @@ const optimizedBackgrounds = await Promise.all(
   }
 
   .photo-container.visible .photo-location {
-    opacity: 0.6;
+    opacity: 1;
     transform: translateY(0);
   }
 
@@ -341,7 +376,7 @@ const optimizedBackgrounds = await Promise.all(
   }
 
   .photo-container.visible .photo-description {
-    opacity: 0.8;
+    opacity: 1;
     transform: translateY(0);
   }
 
