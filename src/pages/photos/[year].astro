@@ -1,14 +1,19 @@
 ---
 import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 import { Picture, getImage } from "astro:assets";
 import Layout from "@layouts/Layout.astro";
 
 export async function getStaticPaths() {
+  const getPhotoYear = (photo: CollectionEntry<"photoShowcase">): number => {
+    return new Date(photo.data.date_taken).getFullYear();
+  };
+
   const allPhotos = await getCollection("photoShowcase");
 
   const yearsSet = new Set<number>();
   allPhotos.forEach((photo) => {
-    const year = new Date(photo.data.date_taken).getFullYear();
+    const year = getPhotoYear(photo);
     yearsSet.add(year);
   });
 
@@ -19,22 +24,31 @@ export async function getStaticPaths() {
   }));
 }
 
-const { year } = Astro.params;
-const yearNum = parseInt(year);
+const getPhotoYear = (photo: CollectionEntry<"photoShowcase">): number => {
+  return new Date(photo.data.date_taken).getFullYear();
+};
 
-const allPhotos = await getCollection("photoShowcase");
+const { year } = Astro.params;
+const yearNum: number = parseInt(year);
+
+const allPhotos: CollectionEntry<"photoShowcase">[] = await getCollection("photoShowcase");
 
 const filteredPhotos = allPhotos.filter((photo) => {
-  const photoYear = new Date(photo.data.date_taken).getFullYear();
+  const photoYear = getPhotoYear(photo);
   return photoYear === yearNum;
 });
 
-const sortedPhotos = filteredPhotos.sort(
+const sortedPhotos: CollectionEntry<"photoShowcase">[] = filteredPhotos.sort(
   (a, b) =>
     new Date(b.data.date_taken).getTime() -
     new Date(a.data.date_taken).getTime()
 );
 
+if (sortedPhotos.length === 0) {
+  return Astro.redirect("/photos");
+}
+
+const photoCount: number = sortedPhotos.length;
 const title = `${year} - Alexis LOURS`;
 const description = `My best pictures taken in ${year}.`;
 const ogImage = sortedPhotos[0]?.data.imageUrls.original.url;
@@ -58,18 +72,23 @@ const optimizedBackgrounds = await Promise.all(
 
 const yearsSet = new Set<number>();
 allPhotos.forEach((photo) => {
-  const photoYear = new Date(photo.data.date_taken).getFullYear();
+  const photoYear = getPhotoYear(photo);
   yearsSet.add(photoYear);
 });
 
-const otherYears = Array.from(yearsSet)
+const otherYears: number[] = Array.from(yearsSet)
   .filter((y) => y !== yearNum)
   .sort((a, b) => b - a);
 
-const otherYearsWithPhotos = await Promise.all(
+type YearWithPhoto = {
+  year: number;
+  photo: CollectionEntry<"photoShowcase">;
+};
+
+const otherYearsWithPhotos: YearWithPhoto[] = await Promise.all(
   otherYears.map(async (otherYear) => {
     const yearPhotos = allPhotos.filter((photo) => {
-      const photoYear = new Date(photo.data.date_taken).getFullYear();
+      const photoYear = getPhotoYear(photo);
       return photoYear === otherYear;
     });
 
@@ -94,6 +113,7 @@ const otherYearsWithPhotos = await Promise.all(
     <section class="hero">
       <div class="hero-content">
         <h1 class="year-title">{year}</h1>
+        <p class="photo-count">{photoCount} {photoCount === 1 ? 'photo' : 'photos'}</p>
       </div>
       <div class="scroll-indicator">
         <div class="scroll-text">Scroll to explore</div>
@@ -114,6 +134,7 @@ const otherYearsWithPhotos = await Promise.all(
 
           return (
             <div
+              id={photo.id}
               class={`photo-section ${isPortrait ? "portrait" : ""} ${isLandscape ? "landscape" : ""}`}
               data-index={index}
               data-thumb-url={optimizedBgUrl}
@@ -166,7 +187,7 @@ const otherYearsWithPhotos = await Promise.all(
     </div>
 
     {otherYearsWithPhotos.length > 0 && (
-      <section class="other-years">
+      <section id="other-years" class="other-years">
         <div class="other-years-content">
           <h2 class="other-years-title">Explore Other Years</h2>
           <div class="years-grid">
@@ -247,6 +268,15 @@ const otherYearsWithPhotos = await Promise.all(
     letter-spacing: 0.2em;
     margin: 0;
     color: #fff;
+  }
+
+  .photo-count {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-top: 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
   }
 
   .scroll-indicator {
@@ -721,10 +751,121 @@ const otherYearsWithPhotos = await Promise.all(
     });
   }
 
+  function initKeyboardNavigation() {
+    const experience = document.querySelector(".experience") as HTMLElement;
+    const photoSections = document.querySelectorAll(".photo-section");
+    const hero = document.querySelector(".hero");
+    const otherYearsSection = document.querySelector("#other-years") as HTMLElement;
+
+    if (!experience || photoSections.length === 0) return;
+
+    let isNavigating = false;
+
+    // Helper to find currently visible section
+    const getCurrentSectionIndex = (): number | "other-years" => {
+      // Check if other years section is visible
+      if (otherYearsSection) {
+        const otherYearsRect = otherYearsSection.getBoundingClientRect();
+        if (Math.abs(otherYearsRect.top) < window.innerHeight / 3) {
+          return "other-years";
+        }
+      }
+
+      const heroRect = hero?.getBoundingClientRect();
+      if (heroRect && Math.abs(heroRect.top) < window.innerHeight / 3) {
+        return -1; // Hero is visible
+      }
+
+      let closestIndex = -1;
+      let closestDistance = Infinity;
+
+      photoSections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect();
+        const distance = Math.abs(rect.top);
+
+        if (distance < closestDistance && rect.top < window.innerHeight / 2) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+      });
+
+      return closestIndex;
+    };
+
+    // Helper to scroll to element
+    const scrollToElement = (element: HTMLElement, hash: string) => {
+      if (isNavigating) return;
+
+      isNavigating = true;
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      // Update hash after a short delay to avoid conflict with scroll
+      setTimeout(() => {
+        history.replaceState(null, "", hash ? `#${hash}` : window.location.pathname);
+        isNavigating = false;
+      }, 100);
+    };
+
+    document.addEventListener("keydown", (e: KeyboardEvent) => {
+      // Ignore if user is typing in an input field
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      const currentIndex = getCurrentSectionIndex();
+
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+        e.preventDefault();
+
+        if (currentIndex === -1 && photoSections.length > 0) {
+          // From hero to first photo
+          scrollToElement(photoSections[0] as HTMLElement, (photoSections[0] as HTMLElement).id);
+        } else if (typeof currentIndex === "number" && currentIndex >= 0 && currentIndex < photoSections.length - 1) {
+          // To next photo
+          const nextSection = photoSections[currentIndex + 1] as HTMLElement;
+          scrollToElement(nextSection, nextSection.id);
+        } else if (typeof currentIndex === "number" && currentIndex === photoSections.length - 1 && otherYearsSection) {
+          // From last photo to other years section
+          scrollToElement(otherYearsSection, "other-years");
+        }
+      } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+        e.preventDefault();
+
+        if (currentIndex === "other-years" && photoSections.length > 0) {
+          // From other years to last photo
+          const lastSection = photoSections[photoSections.length - 1] as HTMLElement;
+          scrollToElement(lastSection, lastSection.id);
+        } else if (currentIndex === 0 && hero) {
+          // From first photo to hero
+          scrollToElement(hero as HTMLElement, "");
+        } else if (typeof currentIndex === "number" && currentIndex > 0) {
+          // To previous photo
+          const prevSection = photoSections[currentIndex - 1] as HTMLElement;
+          scrollToElement(prevSection, prevSection.id);
+        }
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        if (hero) {
+          scrollToElement(hero as HTMLElement, "");
+        }
+      } else if (e.key === "End") {
+        e.preventDefault();
+        if (otherYearsSection) {
+          scrollToElement(otherYearsSection, "other-years");
+        } else {
+          const lastSection = photoSections[photoSections.length - 1] as HTMLElement;
+          scrollToElement(lastSection, lastSection.id);
+        }
+      }
+    });
+  }
+
   initPhotoReveal();
+  initKeyboardNavigation();
 
   document.addEventListener("astro:after-swap", () => {
     initPhotoReveal();
+    initKeyboardNavigation();
   });
 </script>
 </Layout>
