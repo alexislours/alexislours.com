@@ -1,0 +1,1044 @@
+---
+import { Picture } from "astro:assets";
+import { ClientRouter } from "astro:transitions";
+import type { CollectionEntry } from "astro:content";
+
+type YearWithPhoto = {
+  year: number;
+  photo: CollectionEntry<"photoShowcase">;
+};
+
+interface Props {
+  year: string;
+  photoCount: number;
+  sortedPhotos: CollectionEntry<"photoShowcase">[];
+  optimizedBackgrounds: string[];
+  otherYearsWithPhotos: YearWithPhoto[];
+  title: string;
+  description: string;
+  ogImage: string;
+}
+
+const {
+  year,
+  photoCount,
+  sortedPhotos,
+  optimizedBackgrounds,
+  otherYearsWithPhotos,
+  title,
+  description,
+  ogImage,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <title>{title}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+
+    <link rel="preconnect" href="https://stats.alexislours.com" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="Alexis LOURS"
+      href="/rss.xml"
+    />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {
+      optimizedBackgrounds[0] && (
+        <link
+          rel="preload"
+          as="image"
+          href={optimizedBackgrounds[0]}
+          fetchpriority="high"
+        />
+      )
+    }
+    {
+      optimizedBackgrounds[1] && (
+        <link rel="prefetch" as="image" href={optimizedBackgrounds[1]} />
+      )
+    }
+
+    <script
+      defer
+      src="https://stats.alexislours.com/script.js"
+      data-domains="alexislours.com"
+      data-website-id="de661cdc-605e-4a35-8a69-b8a63f33ec0a"></script>
+  </head>
+  <body>
+    <ClientRouter />
+    <main>
+    <div
+      class="experience"
+      data-optimized-bgs={JSON.stringify(optimizedBackgrounds)}>
+      <section class="hero">
+        <div class="hero-content">
+          <h1 class="year-title">{year}</h1>
+          <p class="photo-count">
+            {photoCount}
+            {photoCount === 1 ? "photo" : "photos"}
+          </p>
+        </div>
+        <div class="scroll-indicator">
+          <div class="scroll-text">Scroll to explore</div>
+          <div class="scroll-arrow"></div>
+        </div>
+        <div class="hero-gradient"></div>
+      </section>
+
+      <div class="photo-journey">
+        {
+          sortedPhotos.map((photo, index) => {
+            const isPortrait =
+              photo.data.imageUrls.original.orientation === "portrait";
+            const isLandscape =
+              photo.data.imageUrls.original.orientation === "landscape";
+
+            const optimizedBgUrl = optimizedBackgrounds[index];
+
+            return (
+              <div
+                id={photo.id}
+                class={`photo-section ${isPortrait ? "portrait" : ""} ${isLandscape ? "landscape" : ""}`}
+                data-index={index}
+                data-thumb-url={optimizedBgUrl}
+                data-main-url={photo.data.imageUrls.original.url}>
+                <img
+                  src={optimizedBgUrl}
+                  alt=""
+                  class="photo-bg"
+                  loading={index < 2 ? "eager" : "lazy"}
+                  aria-hidden="true"
+                />
+                <div class="photo-container">
+                  <div class="photo-wrapper">
+                    <Picture
+                      src={photo.data.imageUrls.original.url}
+                      alt={
+                        photo.data.description || photo.data.title || "Photo"
+                      }
+                      formats={["avif"]}
+                      loading={index < 3 ? "eager" : "lazy"}
+                      fetchpriority={index < 3 ? "high" : "auto"}
+                      fallbackFormat="jpg"
+                      width={photo.data.imageUrls.original.width}
+                      height={photo.data.imageUrls.original.height}
+                      class="photo-img"
+                      sizes="100vw"
+                      widths={[800, 1200, 1600, 2000, 2400]}
+                    />
+                  </div>
+                  {(photo.data.title ||
+                    photo.data.locationName ||
+                    photo.data.description) && (
+                    <div class="photo-meta">
+                      {photo.data.title && (
+                        <div class="photo-title">{photo.data.title}</div>
+                      )}
+                      {photo.data.locationName && (
+                        <div class="photo-location">
+                          {photo.data.locationName}
+                        </div>
+                      )}
+                      {photo.data.description && (
+                        <div class="photo-description">
+                          {photo.data.description}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        }
+      </div>
+
+      {
+        otherYearsWithPhotos.length > 0 && (
+          <section id="other-years" class="other-years">
+            <div class="other-years-content">
+              <div class="social-share">
+                <button class="share-button" aria-label="Share this collection">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="18" cy="5" r="3" />
+                    <circle cx="6" cy="12" r="3" />
+                    <circle cx="18" cy="19" r="3" />
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                  </svg>
+                  <span>Share</span>
+                </button>
+              </div>
+
+              <h2 class="other-years-title">Explore Other Years</h2>
+
+              <div class="years-grid">
+                {otherYearsWithPhotos.map(({ year: otherYear, photo }) => (
+                  <a href={`/photos/${otherYear}`} class="year-card">
+                    <div class="year-card-image">
+                      <Picture
+                        src={photo.data.imageUrls.original.url}
+                        alt={`Best photos from ${otherYear}`}
+                        formats={["avif"]}
+                        loading="lazy"
+                        fallbackFormat="jpg"
+                        width={photo.data.imageUrls.original.width}
+                        height={photo.data.imageUrls.original.height}
+                        class="year-thumbnail"
+                        widths={[400, 600, 800]}
+                      />
+                      <div class="year-overlay">
+                        <span class="year-label">{otherYear}</span>
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </section>
+        )
+      }
+    </div>
+  </main>
+  </body>
+</html>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,  body {
+    min-height: fill-available;
+    color: #fff;
+    background: #000;
+  }
+
+  html {
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    height: 110lvh;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  main {
+    height: 100%;
+  }
+
+  .experience {
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+    position: relative;
+    height: 100vh;
+    min-height: 100%;
+    scroll-snap-type: y mandatory;
+    overflow-y: scroll;
+    -webkit-transform: translate3d(0, 0, 0);
+  }
+
+  .hero {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    -webkit-transform: translate3d(0, 0, 0);
+  }
+
+  .hero-content {
+    text-align: center;
+    position: relative;
+    opacity: 0;
+    animation: fadeInHero 2s ease-out forwards;
+  }
+
+  @keyframes fadeInHero {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .year-title {
+    font-size: clamp(4rem, 15vw, 12rem);
+    font-weight: 100;
+    letter-spacing: 0.2em;
+    margin: 0;
+    color: #fff;
+  }
+
+  .photo-count {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-top: 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .scroll-indicator {
+    position: absolute;
+    bottom: 4rem;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    animation: fadeIn 2s 1s ease-out forwards;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .scroll-text {
+    font-size: clamp(0.75rem, 1.5vw, 0.875rem);
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .scroll-arrow {
+    width: 2px;
+    height: 60px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(255, 255, 255, 0.8),
+      transparent
+    );
+    animation: scrollDown 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollDown {
+    0%,
+    100% {
+      transform: translateY(-20px);
+      opacity: 0;
+    }
+    50% {
+      transform: translateY(20px);
+      opacity: 1;
+    }
+  }
+
+  .hero-gradient {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at center,
+      transparent 0%,
+      rgba(0, 0, 0, 0.3) 100%
+    );
+    pointer-events: none;
+  }
+
+  .photo-journey {
+    position: relative;
+  }
+
+  .photo-section {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    position: relative;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .photo-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    filter: blur(60px) brightness(0.4);
+    transform: scale(1.2);
+    -webkit-transform: scale(1.2) translate3d(0, 0, 0);
+  }
+
+  .photo-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .photo-wrapper {
+    position: relative;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .photo-img {
+    max-width: 100%;
+    max-height: calc(100vh - 16rem);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .photo-container.visible .photo-img {
+    opacity: 1;
+  }
+
+  .photo-meta {
+    margin-top: 2rem;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+    max-width: 90%;
+    position: relative;
+  }
+
+  .photo-container.visible .photo-meta {
+    opacity: 1;
+  }
+
+  .photo-title {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity 0.8s ease 0.5s,
+      transform 0.8s ease 0.5s;
+  }
+
+  .photo-container.visible .photo-title {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .photo-location {
+    font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0;
+    margin-bottom: 1rem;
+    transform: translateY(10px);
+    transition:
+      opacity 0.8s ease 0.6s,
+      transform 0.8s ease 0.6s;
+  }
+
+  .photo-container.visible .photo-location {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .photo-description {
+    font-size: clamp(1rem, 1.5vw, 1.125rem);
+    font-weight: 300;
+    line-height: 1.8;
+    max-width: 600px;
+    margin: 0 auto;
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity 0.8s ease 0.7s,
+      transform 0.8s ease 0.7s;
+  }
+
+  .photo-container.visible .photo-description {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    .photo-section {
+      padding: 3rem 1rem;
+    }
+
+    .photo-img {
+      max-height: calc(100vh - 12rem);
+    }
+
+    .year-title {
+      letter-spacing: 0.15em;
+    }
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #000;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  .other-years {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    position: relative;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .other-years-content {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .other-years-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 100;
+    letter-spacing: 0.15em;
+    text-align: center;
+    margin-bottom: 4rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 1s 0.2s ease-out forwards;
+  }
+
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .social-share {
+    text-align: center;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeInUp 1s ease-out forwards;
+  }
+
+  .share-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9375rem;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+  }
+
+  .share-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .share-button:active {
+    transform: translateY(0);
+  }
+
+  .share-button svg {
+    flex-shrink: 0;
+  }
+
+  .years-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    padding: 0;
+  }
+
+  .year-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    aspect-ratio: 4 / 5;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .year-card:hover {
+    transform: scale(1.02);
+  }
+
+  .year-card-image {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .year-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .year-card:hover .year-thumbnail {
+    transform: scale(1.05);
+  }
+
+  .year-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.1) 0%,
+      rgba(0, 0, 0, 0.7) 100%
+    );
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 2rem;
+    transition: background 0.3s ease;
+  }
+
+  .year-card:hover .year-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.2) 0%,
+      rgba(0, 0, 0, 0.5) 100%
+    );
+  }
+
+  .year-label {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 100;
+    letter-spacing: 0.2em;
+    color: #fff;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  @media (max-width: 768px) {
+    .other-years {
+      padding: 3rem 1rem;
+    }
+
+    .years-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .other-years-title {
+      margin-bottom: 2rem;
+    }
+
+    .share-button {
+      padding: 0.875rem 1.75rem;
+      font-size: 0.875rem;
+    }
+  }
+</style>
+
+<script>
+  const preloadedImages = new Set<string>();
+
+  function preloadImage(url: string): Promise<void> {
+    if (preloadedImages.has(url)) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        preloadedImages.add(url);
+        resolve();
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
+  function preloadNextImages(currentIndex: number) {
+    const sections = document.querySelectorAll(".photo-section");
+    const experience = document.querySelector(".experience") as HTMLElement;
+    const optimizedBgs = experience?.dataset.optimizedBgs
+      ? JSON.parse(experience.dataset.optimizedBgs)
+      : [];
+
+    for (let i = 1; i <= 3; i++) {
+      const nextIndex = currentIndex + i;
+      if (nextIndex < sections.length) {
+        if (optimizedBgs[nextIndex]) {
+          preloadImage(optimizedBgs[nextIndex]);
+        }
+
+        const nextSection = sections[nextIndex] as HTMLElement;
+        const img = nextSection?.querySelector("img");
+        if (img && img.loading === "lazy") {
+          img.loading = "eager";
+        }
+      }
+    }
+  }
+
+  function initPhotoReveal() {
+    const photoContainers = document.querySelectorAll(".photo-container");
+    const photoSections = document.querySelectorAll(".photo-section");
+    const hero = document.querySelector(".hero");
+    const experience = document.querySelector(".experience") as HTMLElement;
+    const optimizedBgs = experience?.dataset.optimizedBgs
+      ? JSON.parse(experience.dataset.optimizedBgs)
+      : [];
+
+    if (photoSections.length > 0) {
+      const firstSection = photoSections[0] as HTMLElement;
+      const firstContainer = firstSection.querySelector(
+        ".photo-container"
+      ) as HTMLElement;
+
+      if (firstContainer) {
+        firstContainer.classList.add("visible");
+      }
+
+      for (let i = 0; i < Math.min(4, optimizedBgs.length); i++) {
+        if (optimizedBgs[i]) {
+          const bgImg = new Image();
+          bgImg.src = optimizedBgs[i];
+          preloadedImages.add(optimizedBgs[i]);
+        }
+      }
+
+      preloadNextImages(0);
+    }
+
+    if (hero) {
+      const heroObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              preloadNextImages(0);
+            }
+          });
+        },
+        {
+          threshold: 0.5,
+        }
+      );
+      heroObserver.observe(hero);
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const container = entry.target as HTMLElement;
+            const section = container.closest(".photo-section") as HTMLElement;
+
+            container.classList.add("visible");
+
+            if (section) {
+              const currentIndex = parseInt(section.dataset.index || "0", 10);
+              preloadNextImages(currentIndex);
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.5,
+      }
+    );
+
+    photoContainers.forEach((container) => {
+      observer.observe(container);
+    });
+
+    const earlyObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const section = entry.target as HTMLElement;
+            const sectionIndex = parseInt(section.dataset.index || "0", 10);
+
+            if (optimizedBgs[sectionIndex]) {
+              preloadImage(optimizedBgs[sectionIndex]);
+            }
+          }
+        });
+      },
+      {
+        threshold: 0,
+        rootMargin: "100% 0px 100% 0px",
+      }
+    );
+
+    photoSections.forEach((section) => {
+      earlyObserver.observe(section);
+    });
+  }
+
+  function initKeyboardNavigation() {
+    const experience = document.querySelector(".experience") as HTMLElement;
+    const photoSections = document.querySelectorAll(".photo-section");
+    const hero = document.querySelector(".hero");
+    const otherYearsSection = document.querySelector(
+      "#other-years"
+    ) as HTMLElement;
+
+    if (!experience || photoSections.length === 0) return;
+
+    let isNavigating = false;
+    let scrollTimeout: number | null = null;
+
+    const getCurrentSectionIndex = (): number | "other-years" => {
+      if (otherYearsSection) {
+        const otherYearsRect = otherYearsSection.getBoundingClientRect();
+        if (Math.abs(otherYearsRect.top) < window.innerHeight / 3) {
+          return "other-years";
+        }
+      }
+
+      const heroRect = hero?.getBoundingClientRect();
+      if (heroRect && Math.abs(heroRect.top) < window.innerHeight / 3) {
+        return -1;
+      }
+
+      let closestIndex = -1;
+      let closestDistance = Infinity;
+
+      photoSections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect();
+        const distance = Math.abs(rect.top);
+
+        if (distance < closestDistance && rect.top < window.innerHeight / 2) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+      });
+
+      return closestIndex;
+    };
+
+    const scrollToElement = (element: HTMLElement, hash: string) => {
+      if (isNavigating) return;
+
+      isNavigating = true;
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      setTimeout(() => {
+        history.replaceState(
+          null,
+          "",
+          hash ? `#${hash}` : window.location.pathname
+        );
+        isNavigating = false;
+      }, 100);
+    };
+
+    document.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      const currentIndex = getCurrentSectionIndex();
+
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+        e.preventDefault();
+
+        if (currentIndex === -1 && photoSections.length > 0) {
+          scrollToElement(
+            photoSections[0] as HTMLElement,
+            (photoSections[0] as HTMLElement).id
+          );
+        } else if (
+          typeof currentIndex === "number" &&
+          currentIndex >= 0 &&
+          currentIndex < photoSections.length - 1
+        ) {
+          const nextSection = photoSections[currentIndex + 1] as HTMLElement;
+          scrollToElement(nextSection, nextSection.id);
+        } else if (
+          typeof currentIndex === "number" &&
+          currentIndex === photoSections.length - 1 &&
+          otherYearsSection
+        ) {
+          scrollToElement(otherYearsSection, "other-years");
+        }
+      } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+        e.preventDefault();
+
+        if (currentIndex === "other-years" && photoSections.length > 0) {
+          const lastSection = photoSections[
+            photoSections.length - 1
+          ] as HTMLElement;
+          scrollToElement(lastSection, lastSection.id);
+        } else if (currentIndex === 0 && hero) {
+          scrollToElement(hero as HTMLElement, "");
+        } else if (typeof currentIndex === "number" && currentIndex > 0) {
+          const prevSection = photoSections[currentIndex - 1] as HTMLElement;
+          scrollToElement(prevSection, prevSection.id);
+        }
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        if (hero) {
+          scrollToElement(hero as HTMLElement, "");
+        }
+      } else if (e.key === "End") {
+        e.preventDefault();
+        if (otherYearsSection) {
+          scrollToElement(otherYearsSection, "other-years");
+        } else {
+          const lastSection = photoSections[
+            photoSections.length - 1
+          ] as HTMLElement;
+          scrollToElement(lastSection, lastSection.id);
+        }
+      }
+    });
+
+    const handleScroll = () => {
+      if (isNavigating) return;
+
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+
+      scrollTimeout = window.setTimeout(() => {
+        const currentIndex = getCurrentSectionIndex();
+
+        if (currentIndex === "other-years") {
+          history.replaceState(null, "", "#other-years");
+        } else if (currentIndex === -1) {
+          history.replaceState(null, "", window.location.pathname);
+        } else if (typeof currentIndex === "number" && currentIndex >= 0) {
+          const section = photoSections[currentIndex] as HTMLElement;
+          if (section && section.id) {
+            history.replaceState(null, "", `#${section.id}`);
+          }
+        }
+      }, 150);
+    };
+
+    experience.addEventListener("scroll", handleScroll, { passive: true });
+  }
+
+  function initSocialShare() {
+    const shareButton = document.querySelector(
+      ".share-button"
+    ) as HTMLButtonElement;
+    if (!shareButton) return;
+
+    const cleanUrl = window.location.origin + window.location.pathname;
+    const pageTitle = document.title;
+
+    shareButton.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: pageTitle,
+            url: cleanUrl,
+          });
+        } catch (err) {
+          if ((err as Error).name !== "AbortError") {
+            console.log("Share failed:", err);
+          }
+        }
+      } else {
+        try {
+          await navigator.clipboard.writeText(cleanUrl);
+
+          const originalText = shareButton.querySelector("span")?.textContent;
+          const span = shareButton.querySelector("span");
+          if (span) {
+            span.textContent = "Copied!";
+            setTimeout(() => {
+              span.textContent = originalText || "Share";
+            }, 2000);
+          }
+        } catch (err) {
+          console.log("Failed to copy URL:", err);
+        }
+      }
+    });
+  }
+
+  initPhotoReveal();
+  initKeyboardNavigation();
+  initSocialShare();
+
+  document.addEventListener("astro:after-swap", () => {
+    initPhotoReveal();
+    initKeyboardNavigation();
+    initSocialShare();
+  });
+</script>
