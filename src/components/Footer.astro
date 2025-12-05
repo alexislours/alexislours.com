@@ -10,23 +10,24 @@ const yearRange =
 ---
 
 <footer
-  class="mt-auto border-t border-gray-200 bg-linear-to-r from-slate-50 to-gray-50 shadow-sm">
+  class="mt-auto border-t border-gray-100 bg-white">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="py-6">
-      <div class="text-center">
-        <p class="text-sm text-gray-600">
-          © {yearRange} Alexis Lours. Some rights reserved.
+    <div class="py-12">
+      <div class="flex flex-col items-center gap-2 text-center">
+        <p class="font-sans text-sm tracking-wide text-gray-500">
+          © {yearRange} Alexis Lours
         </p>
-        <p class="mt-2 text-xs text-gray-500">
+        <p class="font-sans text-xs text-gray-400">
           <a
-            class="underline"
+            class="transition-colors duration-200 hover:text-gray-600"
             data-umami-event="Click version footer"
             href={`https://github.com/alexislours/alexislours.com/releases/tag/v${version}`}
             target="_blank"
             rel="noopener noreferrer">
-            v{version}</a
-          >
-          - Build {buildId}
+            v{version}
+          </a>
+          <span class="mx-2 text-gray-300">·</span>
+          <span class="text-gray-400">Build {buildId}</span>
         </p>
       </div>
     </div>

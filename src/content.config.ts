@@ -8,13 +8,6 @@ const photos = defineCollection({
   }),
 });
 
-const otherPictures = defineCollection({
-  loader: createPhotoLoader({
-    username: "alexisloursphotos",
-    photoset_id: "72177720329950379",
-  }),
-});
-
 const photoShowcase = defineCollection({
   loader: createPhotoLoader({
     username: "alexislours",
@@ -24,6 +17,5 @@ const photoShowcase = defineCollection({
 
 export const collections = {
   photos,
-  otherPictures,
   photoShowcase,
 };

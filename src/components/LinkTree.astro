@@ -22,20 +22,20 @@ const linksByCategory = categories
   .filter((category) => category.links.length > 0);
 ---
 
-<div class="bg-linear-to-br from-blue-50 via-white to-purple-50 px-4 py-8">
-  <div class="mx-auto max-w-2xl">
-    <div class="mb-12 text-center">
-      <div class="mb-6">
+<div class="bg-white px-4 py-16 pb-20">
+  <div class="mx-auto max-w-xl">
+    <div class="mb-20 text-center">
+      <div class="mb-10">
         <img
           src={profileInfo.avatar}
           alt={profileInfo.name}
-          class="mx-auto mb-4 h-24 w-24 rounded-full border-4 border-white shadow-lg"
+          class="mx-auto mb-8 h-32 w-32 rounded-full border-2 border-gray-100 shadow-sm"
         />
-        <h1 class="mb-2 text-3xl font-bold text-gray-900">
+        <h1 class="mb-4 font-serif text-5xl font-light tracking-tight text-gray-900">
           {profileInfo.name}
         </h1>
-        <p class="mb-1 text-lg text-gray-600">{profileInfo.bio}</p>
-        <p class="flex items-center justify-center gap-1 text-sm text-gray-500">
+        <p class="mb-3 font-sans text-base leading-relaxed text-gray-600">{profileInfo.bio}</p>
+        <p class="flex items-center justify-center gap-2 font-sans text-sm text-gray-500">
           <svg
             class="h-4 w-4"
             fill="none"
@@ -59,16 +59,16 @@ const linksByCategory = categories
       </div>
     </div>
 
-    <div class="space-y-8">
+    <div class="space-y-14">
       {
         linksByCategory.map((category) => (
-          <div class="space-y-4">
-            <div class="text-center">
-              <h2 class="mb-1 text-xl font-semibold text-gray-800">
+          <div class="space-y-6">
+            <div class="border-b border-gray-100 pb-4 text-center">
+              <h2 class="font-serif text-3xl font-light tracking-tight text-gray-900">
                 {category.title}
               </h2>
               {category.description && (
-                <p class="text-sm text-gray-600">{category.description}</p>
+                <p class="mt-2 font-sans text-sm text-gray-500">{category.description}</p>
               )}
             </div>
 
@@ -80,42 +80,44 @@ const linksByCategory = categories
                   target="_blank"
                   rel="noopener noreferrer"
                   class="group block">
-                  <div class="transform rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-200 hover:shadow-md">
-                    <div class="flex items-center space-x-4">
+                  <div class="rounded-lg border border-gray-200 bg-white p-5 transition-all duration-200 hover:border-gray-400 hover:shadow-sm">
+                    <div class="flex items-center gap-4">
                       {link.icon && (
                         <div
-                          class="flex h-12 w-12 items-center justify-center rounded-lg"
+                          class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg"
                           style={
                             link.color ? `background-color: ${link.color}` : ""
                           }>
                           <img
                             src={`/svg/${link.icon}.svg`}
-                            alt={`${link.title} icon`}
+                            alt=""
                             class="h-6 w-6"
                             style={
                               link.color && !link.icon.includes("favicon")
                                 ? `filter: brightness(0) invert(1) opacity(0.95)`
                                 : ""
                             }
+                            aria-hidden="true"
                           />
                         </div>
                       )}
                       <div class="min-w-0 flex-1">
-                        <h3 class="font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
+                        <h3 class="font-sans font-medium text-gray-900 transition-colors duration-200 group-hover:text-gray-600">
                           {link.title}
                         </h3>
                         {link.description && (
-                          <p class="mt-1 line-clamp-2 text-sm text-gray-600">
+                          <p class="mt-1 line-clamp-2 font-sans text-sm leading-relaxed text-gray-600">
                             {link.description}
                           </p>
                         )}
                       </div>
-                      <div class="text-gray-400 transition-colors group-hover:text-blue-500">
+                      <div class="shrink-0 text-gray-400 transition-all duration-200 group-hover:translate-x-1 group-hover:text-gray-700">
                         <svg
                           class="h-5 w-5"
                           fill="none"
                           stroke="currentColor"
-                          viewBox="0 0 24 24">
+                          viewBox="0 0 24 24"
+                          aria-hidden="true">
                           <path
                             stroke-linecap="round"
                             stroke-linejoin="round"

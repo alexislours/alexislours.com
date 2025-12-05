@@ -59,7 +59,7 @@ const formatDate = (date: Date) => {
 
 <div class="fixed inset-0 overflow-hidden bg-black text-white">
   <header
-    class="absolute top-0 right-0 left-0 z-20 bg-gradient-to-b from-black/80 to-transparent">
+    class="absolute top-0 right-0 left-0 z-20 bg-linear-to-b from-black/80 to-transparent">
     <div class="flex items-center justify-between p-4">
       <a
         href={backUrl}
@@ -111,7 +111,6 @@ const formatDate = (date: Date) => {
       class="relative flex min-h-0 min-w-0 flex-1 items-center justify-center">
       <Picture
         src={currentPhoto.url_o}
-        data-pagefind-meta="image[src]"
         alt={currentPhoto.description || currentPhoto.title || "Photo"}
         class="h-auto max-h-screen w-auto max-w-full object-contain"
         formats={["avif"]}
@@ -185,11 +184,11 @@ const formatDate = (date: Date) => {
     <aside
       id="sidebar"
       class="sidebar-default max-h-[60vh] w-full overflow-y-auto border-t border-gray-200 bg-white text-gray-900 lg:max-h-none lg:w-80 lg:border-t-0 lg:border-l lg:pt-14">
-      <div class="space-y-6 p-6">
+      <div class="space-y-8 p-6">
         {
           currentPhoto.title && (
             <div>
-              <h1 class="mb-2 text-2xl font-bold text-gray-900">
+              <h1 class="font-serif text-3xl font-light leading-tight tracking-tight text-gray-900">
                 {currentPhoto.title}
               </h1>
             </div>
@@ -198,30 +197,24 @@ const formatDate = (date: Date) => {
 
         {
           currentPhoto.description && (
-            <div>
-              <h2 class="mb-2 text-sm font-medium text-gray-600">
-                Description
-              </h2>
               <p
-                data-pagefind-body
-                class="text-gray-800">
+                class="font-sans text-sm leading-relaxed text-gray-700">
                 {currentPhoto.description}
               </p>
-            </div>
           )
         }
 
         {
           showLicense && (
-            <div class="border-b border-gray-200 pb-4">
+            <div class="space-y-4 border-b border-gray-100 pb-6">
               <a
                 href={currentPhoto.url_o}
                 target="_blank"
                 data-umami-event="Download photo"
                 rel="noopener noreferrer"
-                class="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-white transition-colors hover:bg-blue-700">
+                class="group flex w-full items-center justify-center gap-2.5 rounded border border-gray-300 bg-white px-4 py-2.5 font-sans text-sm font-medium text-gray-900 transition-all hover:border-gray-900 hover:bg-gray-50">
                 <svg
-                  class="h-4 w-4"
+                  class="h-4 w-4 transition-transform group-hover:translate-y-0.5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24">
@@ -232,78 +225,56 @@ const formatDate = (date: Date) => {
                     d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
                   />
                 </svg>
-                Download
+                Download Original
               </a>
-              <div class="mt-3 rounded-lg bg-gray-50 p-3 text-center">
-                <div class="mb-1 flex items-center justify-center gap-2">
-                  <svg
-                    class="h-4 w-4 text-gray-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  <span class="text-xs font-medium text-gray-600">
-                    {" "}
-                    License{" "}
-                  </span>
-                </div>
-                <p class="text-xs text-gray-500">
-                  Licensed under{" "}
-                  <a
-                    href="https://creativecommons.org/licenses/by/4.0/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-umami-event="License"
-                    class="font-medium text-blue-600 transition-colors hover:text-blue-800 hover:underline">
-                    Creative Commons Attribution 4.0
-                  </a>
-                </p>
-              </div>
+              <p class="text-center font-sans text-xs leading-relaxed text-gray-500">
+                Licensed under{" "}
+                <a
+                  href="https://creativecommons.org/licenses/by/4.0/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-umami-event="License"
+                  class="text-gray-700 underline decoration-gray-300 transition-colors hover:text-gray-900 hover:decoration-gray-500">
+                  CC BY 4.0
+                </a>
+              </p>
             </div>
           )
         }
 
-        <div>
-          <h2 class="mb-2 text-sm font-medium text-gray-600">Date Taken</h2>
+        <div class="space-y-1">
+          <h2 class="font-sans text-xs font-medium uppercase tracking-wider text-gray-500">Date Taken</h2>
           <p
-            data-pagefind-sort={"date:" +
-              currentPhoto.date_taken.toISOString().split("T")[0]}
-            class="text-gray-800">
+            class="font-sans text-sm text-gray-900">
             {formatDate(currentPhoto.date_taken)}
           </p>
         </div>
 
-        <div>
-          <h2 class="mb-2 text-sm font-medium text-gray-600">Image Details</h2>
-          <div class="space-y-2 text-gray-800">
-            <div class="flex justify-between">
-              <span>Dimensions:</span>
-              <span>{currentPhoto.width_o} × {currentPhoto.height_o}</span>
+        <div class="space-y-2 border-t border-gray-100 pt-6">
+          <h2 class="font-sans text-xs font-medium uppercase tracking-wider text-gray-500">Image Details</h2>
+          <div class="font-sans text-sm text-gray-700">
+            <div class="flex justify-between py-1">
+              <span class="text-gray-500">Dimensions</span>
+              <span class="font-medium text-gray-900">{currentPhoto.width_o} × {currentPhoto.height_o}</span>
             </div>
           </div>
         </div>
 
         {
           currentPhoto.exif?.Model || currentPhoto.exif?.Lens ? (
-            <div>
-              <h2 class="mb-2 text-sm font-medium text-gray-600">
-                Camera Information
+            <div class="space-y-2 border-t border-gray-100 pt-6">
+              <h2 class="font-sans text-xs font-medium uppercase tracking-wider text-gray-500">
+                Camera
               </h2>
-              <div class="space-y-2 text-gray-800">
+              <div class="space-y-1.5 font-sans text-sm text-gray-700">
                 {currentPhoto.exif.Model && (
-                  <div class="break-words">
+                  <div class="wrap-break-word font-medium text-gray-900">
                     {currentPhoto.exif.Model.clean ||
                       currentPhoto.exif.Model.value}
                   </div>
                 )}
                 {currentPhoto.exif.Lens && (
-                  <div class="break-words">
+                  <div class="wrap-break-word text-gray-700">
                     {currentPhoto.exif.Lens.clean ||
                       currentPhoto.exif.Lens.value}
                   </div>
@@ -318,43 +289,43 @@ const formatDate = (date: Date) => {
           currentPhoto.exif?.FNumber ||
           currentPhoto.exif?.FocalLength ||
           currentPhoto.exif?.ISO ? (
-            <div>
-              <h2 class="mb-2 text-sm font-medium text-gray-600">
-                Shooting Parameters
+            <div class="space-y-2 border-t border-gray-100 pt-6">
+              <h2 class="font-sans text-xs font-medium uppercase tracking-wider text-gray-500">
+                Settings
               </h2>
-              <div class="space-y-2 text-gray-800">
-                {currentPhoto.exif.ExposureTime && (
-                  <div class="flex justify-between">
-                    <span>Exposure Time:</span>
-                    <span>{currentPhoto.exif.ExposureTime.raw}</span>
-                  </div>
-                )}
+              <div class="grid grid-cols-2 gap-3 font-sans text-sm">
                 {currentPhoto.exif.FNumber &&
                   currentPhoto.exif.FNumber.clean !== "f/undef" && (
-                    <div class="flex justify-between">
-                      <span>Aperture:</span>
-                      <span>
+                    <div class="space-y-0.5">
+                      <div class="text-xs text-gray-500">Aperture</div>
+                      <div class="font-medium text-gray-900">
                         {currentPhoto.exif.FNumber.clean ||
                           currentPhoto.exif.FNumber.value}
-                      </span>
+                      </div>
                     </div>
                   )}
-                {currentPhoto.exif.FocalLength && (
-                  <div class="flex justify-between">
-                    <span>Focal Length:</span>
-                    <span>
-                      {currentPhoto.exif.FocalLength.clean ||
-                        currentPhoto.exif.FocalLength.value}
-                    </span>
+                {currentPhoto.exif.ExposureTime && (
+                  <div class="space-y-0.5">
+                    <div class="text-xs text-gray-500">Shutter</div>
+                    <div class="font-medium text-gray-900">{currentPhoto.exif.ExposureTime.raw}</div>
                   </div>
                 )}
                 {currentPhoto.exif.ISO && (
-                  <div class="flex justify-between">
-                    <span>ISO:</span>
-                    <span>
+                  <div class="space-y-0.5">
+                    <div class="text-xs text-gray-500">ISO</div>
+                    <div class="font-medium text-gray-900">
                       {currentPhoto.exif.ISO.clean ||
                         currentPhoto.exif.ISO.value}
-                    </span>
+                    </div>
+                  </div>
+                )}
+                {currentPhoto.exif.FocalLength && (
+                  <div class="space-y-0.5">
+                    <div class="text-xs text-gray-500">Focal Length</div>
+                    <div class="font-medium text-gray-900">
+                      {currentPhoto.exif.FocalLength.clean ||
+                        currentPhoto.exif.FocalLength.value}
+                    </div>
                   </div>
                 )}
               </div>
@@ -362,17 +333,24 @@ const formatDate = (date: Date) => {
           ) : null
         }
 
-        <div>
-          <h2 class="mb-2 text-sm font-medium text-gray-600">Location</h2>
-          <MapBox
-            latitude={currentPhoto.latitude}
-            longitude={currentPhoto.longitude}
-            locationName={currentPhoto.locationName}
-            width={300}
-            height={300}
-            zoom={13}
-          />
-        </div>
+        {currentPhoto.locationName && (
+          <div class="space-y-3 border-t border-gray-100 pt-6">
+            <div class="space-y-1">
+              <h2 class="font-sans text-xs font-medium uppercase tracking-wider text-gray-500">Location</h2>
+              <p class="font-sans text-sm text-gray-900">
+                {currentPhoto.locationName}
+              </p>
+            </div>
+            <MapBox
+              latitude={currentPhoto.latitude}
+              longitude={currentPhoto.longitude}
+              locationName={currentPhoto.locationName}
+              width={300}
+              height={300}
+              zoom={13}
+            />
+          </div>
+        )}
       </div>
     </aside>
   </div>
@@ -416,7 +394,7 @@ const formatDate = (date: Date) => {
   }
 </style>
 
-<script define:vars={{ prevId, nextId, basePath, backUrl }}>
+<script is:inline define:vars={{ prevId, nextId, basePath, backUrl }}>
   document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft" && prevId) {
       umami.track("Previous photo");

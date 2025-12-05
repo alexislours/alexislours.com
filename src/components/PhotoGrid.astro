@@ -60,7 +60,7 @@ const { photos, basePath = "/photo" } = Astro.props;
   .section {
     display: flex;
     flex-wrap: wrap;
-    margin: 2px;
+    margin: 3px;
   }
   .section:after {
     content: "";
@@ -68,9 +68,10 @@ const { photos, basePath = "/photo" } = Astro.props;
   }
   .link {
     position: relative;
-    margin: 2px;
+    margin: 3px;
     cursor: pointer;
-    background-color: #e5e7eb;
+    background-color: #f3f4f6;
+    overflow: hidden;
   }
   .photo {
     position: absolute;
@@ -78,11 +79,12 @@ const { photos, basePath = "/photo" } = Astro.props;
     height: 100%;
     width: 100%;
     object-fit: cover;
-    transition: opacity 0.6s ease-in-out;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
   }
 
-  .photo:hover {
-    opacity: 0.9;
+  .link:hover .photo {
+    transform: scale(1.05);
+    opacity: 0.95;
   }
 
   .photo-fade {
