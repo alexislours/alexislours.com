@@ -13,6 +13,13 @@ export interface LinkCategory {
   description?: string;
 }
 
+export interface ProfileInfo {
+  name: string;
+  avatar: string;
+  bio: string;
+  location: string;
+}
+
 export const linkCategories: LinkCategory[] = [
   {
     name: "personal",
@@ -31,6 +38,14 @@ export const links: LinkItem[] = [
     description: "My bird photography Instagram",
     icon: "instagram",
     color: "#FF0069",
+    category: "social",
+  },
+  {
+    title: "Bluesky",
+    url: "https://bsky.app/profile/alexislours.com",
+    description: "Follow me on Bluesky",
+    icon: "bluesky",
+    color: "#0085ff",
     category: "social",
   },
   {
@@ -75,7 +90,7 @@ export const links: LinkItem[] = [
   },
 ];
 
-export const profileInfo = {
+export const profileInfo: ProfileInfo = {
   name: "Alexis LOURS",
   avatar: "/favicon.png",
   bio: "I'm a wildlife photographer on my spare time. My goal is to share nature as is, with minimal editing, and simply capture the moment as I saw it.",

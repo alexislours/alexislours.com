@@ -11,109 +11,70 @@ const isActive = (path: string) => {
   return Astro.url.pathname.startsWith(path);
 };
 
-const navLinks = [
-  { href: "/", label: "Gallery", event: "Open gallery" },
-  { href: "/map", label: "Map", event: "Open map" },
-  { href: "/other", label: "Other Photos", event: "Open other pictures" },
-];
-
 const socialLinks = [
   {
     href: "https://flickr.com/photos/alexislours/",
     title: "Visit my Flickr profile",
     event: "Open Flickr Header",
-    hoverColor: "blue",
+    hoverClasses: "hover:bg-blue-50 hover:text-blue-600",
     icon: `<path d="M6.5 7c-2.75 0-5 2.25-5 5s2.25 5 5 5 5-2.25 5-5-2.25-5-5-5zm11 0c-2.75 0-5 2.25-5 5s2.25 5 5 5 5-2.25 5-5-2.25-5-5-5z"></path>`,
   },
   {
     href: "https://instagram.com/alexisbirding",
     title: "Visit my Instagram profile",
     event: "Open Instagram Header",
-    hoverColor: "pink",
+    hoverClasses: "hover:bg-pink-50 hover:text-pink-600",
     icon: `<path d="M7.75 2h8.5c3.17 0 5.75 2.58 5.75 5.75v8.5c0 3.17-2.58 5.75-5.75 5.75h-8.5C4.58 22 2 19.42 2 16.25v-8.5C2 4.58 4.58 2 7.75 2zm8.5 1.5h-8.5c-2.34 0-4.25 1.91-4.25 4.25v8.5c0 2.34 1.91 4.25 4.25 4.25h8.5c2.34 0 4.25-1.91 4.25-4.25v-8.5c0-2.34-1.91-4.25-4.25-4.25zM12 7.5c2.48 0 4.5 2.02 4.5 4.5s-2.02 4.5-4.5 4.5-4.5-2.02-4.5-4.5 2.02-4.5 4.5-4.5zm0 1.5c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm5.25-2.5c.41 0 .75.34.75.75s-.34.75-.75.75-.75-.34-.75-.75.34-.75.75-.75z"></path>`,
   },
   {
     href: "/about/",
     title: "About me",
     event: "Open about Header",
-    hoverColor: "blue",
+    hoverClasses: "hover:bg-blue-50 hover:text-blue-600",
     icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>`,
     isStroke: true,
   },
 ];
 ---
 
-<header
-  class="border-b border-gray-200 bg-linear-to-r from-slate-50 to-gray-50">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="py-4 lg:py-6">
-      <div class="lg:flex lg:items-center lg:justify-between">
-        <div class="mb-6 text-center lg:mb-0 lg:text-left">
-          <h1 class="text-4xl font-bold tracking-tight text-gray-900">
-            {title}
-          </h1>
-          {
-            subtitle && (
-              <p class="mt-2 text-lg font-light text-gray-600">{subtitle}</p>
-            )
-          }
-        </div>
-
-        <div
-          class="flex flex-col items-center justify-center gap-4 lg:flex-row lg:justify-end lg:gap-0">
-          <nav class="flex items-center space-x-6 lg:mr-8">
-            {
-              navLinks.map((link) => {
-                const active = isActive(link.href);
-                return (
-                  <a
-                    href={link.href}
-                    class={`min-w-20 rounded-lg px-4 py-2 text-center text-sm font-medium ${
-                      active
-                        ? "bg-blue-600 text-white shadow-lg"
-                        : "bg-gray-100 text-gray-700 transition-colors duration-300 hover:bg-gray-200"
-                    }`}
-                    aria-label={
-                      link.href === "/"
-                        ? "Go to home page"
-                        : "View photos on map"
-                    }
-                    data-umami-event={active ? undefined : link.event}>
-                    {link.label}
-                  </a>
-                );
-              })
-            }
-          </nav>
-
-          <div class="flex items-center space-x-6">
-            {
-              socialLinks.map((link) => (
-                <a
-                  href={link.href}
-                  target={link.href.startsWith("http") ? "_blank" : undefined}
-                  rel={
-                    link.href.startsWith("http")
-                      ? "noopener noreferrer"
-                      : undefined
-                  }
-                  class={`group transform rounded-full border border-gray-300 bg-white p-3 transition-all duration-300 hover:scale-105 hover:border-${link.hoverColor}-400 hover:bg-${link.hoverColor}-50`}
-                  title={link.title}
-                  data-umami-event={link.event}
-                  aria-label={link.title}>
-                  <svg
-                    class={`h-6 w-6 text-gray-500 transition-colors duration-300 group-hover:text-${link.hoverColor}-600`}
-                    fill={link.isStroke ? "none" : "currentColor"}
-                    stroke={link.isStroke ? "currentColor" : undefined}
-                    viewBox="0 0 24 24">
-                    <Fragment set:html={link.icon} />
-                  </svg>
-                </a>
-              ))
-            }
-          </div>
-        </div>
-      </div>
+<header class="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/95 backdrop-blur-md">
+  <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col">
+      <a href="/" class="group">
+        <h1 class="font-serif text-2xl font-light tracking-tight text-gray-900 transition-colors duration-200 group-hover:text-gray-600 sm:text-3xl">
+          {title}
+        </h1>
+      </a>
+      {
+        subtitle && (
+          <p class="font-sans text-sm font-medium text-gray-500">{subtitle}</p>
+        )
+      }
     </div>
+
+    <nav class="flex items-center gap-1.5" aria-label="Social media and navigation">
+      {
+        socialLinks.map((link) => (
+          <a
+            href={link.href}
+            target={link.href.startsWith("http") ? "_blank" : undefined}
+            rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
+            class={`group flex h-9 w-9 items-center justify-center rounded-full text-gray-600 transition-all duration-200 hover:bg-gray-50 ${link.hoverClasses}`}
+            title={link.title}
+            data-umami-event={link.event}
+            aria-label={link.title}
+          >
+            <svg
+              class="h-5 w-5 transition-transform duration-200 group-hover:scale-105"
+              fill={link.isStroke ? "none" : "currentColor"}
+              stroke={link.isStroke ? "currentColor" : undefined}
+              viewBox="0 0 24 24"
+            >
+              <Fragment set:html={link.icon} />
+            </svg>
+          </a>
+        ))
+      }
+    </nav>
   </div>
 </header>

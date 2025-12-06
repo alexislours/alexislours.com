@@ -3,7 +3,6 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import svelte from '@astrojs/svelte';
-import pagefind from 'astro-pagefind';
 
 // https://astro.build/config
 export default defineConfig({
@@ -34,5 +33,5 @@ export default defineConfig({
     ]
   },
 
-  integrations: [sitemap(), svelte(), pagefind()],
+  integrations: [sitemap(), svelte()],
 });

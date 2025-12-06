@@ -11,12 +11,12 @@ const description = "The page you're looking for doesn't exist.";
   title={title}
   description={description}>
   <div
-    class="flex min-h-screen flex-col items-center justify-center bg-linear-to-br from-slate-50 to-gray-100 px-4 py-12">
+    class="flex min-h-screen flex-col items-center justify-center bg-white px-4 py-16">
     <div class="text-center">
       <Picture
         src={kingfisherImage}
         alt="Confused kingfisher with question marks"
-        class="mx-auto mb-8 h-auto w-64 sm:w-80 md:w-96"
+        class="mx-auto mb-12 h-auto w-64 opacity-90 sm:w-80 md:w-96"
         formats={["avif"]}
         fallbackFormat="png"
         width={400}
@@ -24,36 +24,41 @@ const description = "The page you're looking for doesn't exist.";
         loading="eager"
         fetchpriority="high"
       />
-      <div class="space-y-4">
-        <h1 class="text-6xl font-bold text-gray-800 sm:text-7xl md:text-8xl">
-          404
-        </h1>
-        <h2 class="text-2xl font-semibold text-gray-700 sm:text-3xl">
-          Oops! Page Not Found
-        </h2>
-        <p class="mx-auto max-w-md text-lg text-gray-600">
-          The page you're looking for seems to have flown away!
-        </p>
+      <div class="space-y-8">
+        <div class="space-y-4">
+          <h1 class="font-serif text-8xl font-extralight tracking-tight text-gray-900 sm:text-9xl">
+            404
+          </h1>
+          <div class="mx-auto h-px w-16 bg-gray-200"></div>
+        </div>
+        <div class="space-y-3">
+          <h2 class="font-serif text-2xl font-light tracking-tight text-gray-900 sm:text-3xl">
+            Page Not Found
+          </h2>
+          <p class="mx-auto max-w-sm font-sans text-sm leading-relaxed text-gray-600">
+            The page you're looking for seems to have flown away
+          </p>
+        </div>
       </div>
-      <div
-        class="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+      <div class="mt-12">
         <a
           href="/"
           data-umami-event="Go to home from 404"
-          class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none">
+          class="group inline-flex items-center gap-2 border-b border-gray-900 pb-1 font-sans text-sm font-medium text-gray-900 transition-all hover:border-gray-600 hover:text-gray-600 focus:outline-none">
           <svg
-            class="h-5 w-5"
+            class="h-4 w-4 transition-transform group-hover:-translate-x-0.5"
             fill="none"
             stroke="currentColor"
-            viewBox="0 0 24 24">
+            viewBox="0 0 24 24"
+            aria-hidden="true">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
             ></path>
           </svg>
-          Go Home
+          Return Home
         </a>
       </div>
     </div>
