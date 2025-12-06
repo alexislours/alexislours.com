@@ -1,7 +1,8 @@
 ---
-import { Picture } from "astro:assets";
+import { Picture, Font } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
 import type { CollectionEntry } from "astro:content";
+import styles from "../styles/global.css?url";
 
 type YearWithPhoto = {
   year: number;
@@ -38,6 +39,10 @@ const {
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+
+    <link rel="stylesheet" rel="preload" href={styles} as="style" />
+    <Font cssVariable="--font-newsreader" preload />
+    <Font cssVariable="--font-inter" preload />
 
     <link rel="preconnect" href="https://stats.alexislours.com" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -243,7 +248,7 @@ const {
   }
 
   html {
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-family: var(--font-family-serif);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     height: 110lvh;
@@ -299,15 +304,16 @@ const {
 
   .year-title {
     font-size: clamp(4rem, 15vw, 12rem);
-    font-weight: 100;
+    font-weight: 300;
     letter-spacing: 0.2em;
     margin: 0;
     color: #fff;
   }
 
   .photo-count {
+    font-family: var(--font-family-sans);
     font-size: clamp(1rem, 2vw, 1.25rem);
-    font-weight: 300;
+    font-weight: 400;
     letter-spacing: 0.3em;
     text-transform: uppercase;
     margin-top: 1.5rem;
@@ -328,8 +334,9 @@ const {
   }
 
   .scroll-text {
+    font-family: var(--font-family-sans);
     font-size: clamp(0.75rem, 1.5vw, 0.875rem);
-    font-weight: 300;
+    font-weight: 400;
     letter-spacing: 0.3em;
     text-transform: uppercase;
     opacity: 0.5;
@@ -455,7 +462,7 @@ const {
     font-size: clamp(1.5rem, 3vw, 2.5rem);
     font-weight: 300;
     letter-spacing: 0.05em;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.1rem;
     opacity: 0;
     transform: translateY(10px);
     transition:
@@ -469,8 +476,9 @@ const {
   }
 
   .photo-location {
-    font-size: clamp(0.875rem, 1.5vw, 1.125rem);
-    font-weight: 300;
+    font-family: var(--font-family-sans);
+    font-size: clamp(0.65rem, 1vw, 0.75rem);
+    font-weight: 400;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     opacity: 0;
@@ -487,8 +495,9 @@ const {
   }
 
   .photo-description {
+    font-family: var(--font-family-sans);
     font-size: clamp(1rem, 1.5vw, 1.125rem);
-    font-weight: 300;
+    font-weight: 400;
     line-height: 1.8;
     max-width: 600px;
     margin: 0 auto;
@@ -558,7 +567,7 @@ const {
 
   .other-years-title {
     font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight: 100;
+    font-weight: 300;
     letter-spacing: 0.15em;
     text-align: center;
     margin-bottom: 4rem;
@@ -590,8 +599,9 @@ const {
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 50px;
     color: rgba(255, 255, 255, 0.9);
+    font-family: var(--font-family-sans);
     font-size: 0.9375rem;
-    font-weight: 300;
+    font-weight: 400;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -679,7 +689,7 @@ const {
 
   .year-label {
     font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 100;
+    font-weight: 300;
     letter-spacing: 0.2em;
     color: #fff;
     text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);

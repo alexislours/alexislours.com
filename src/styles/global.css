@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme {
+@theme inline {
   --font-family-serif: var(--font-newsreader);
   --font-family-sans: var(--font-inter);
 }

@@ -1,7 +1,7 @@
 // @ts-check
-import { defineConfig, fontProviders } from 'astro/config';
-import tailwindcss from '@tailwindcss/vite';
-import sitemap from '@astrojs/sitemap';
+import { defineConfig } from "astro/config";
+import tailwindcss from "@tailwindcss/vite";
+import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
@@ -10,47 +10,57 @@ export default defineConfig({
   experimental: {
     fonts: [
       {
-        provider: fontProviders.google(),
+        provider: "local",
         name: "Newsreader",
         cssVariable: "--font-newsreader",
-        weights: [300, 400, 500, 600],
-        styles: ["normal", "italic"],
         fallbacks: ["serif"],
+        variants: [
+          {
+            weight: 400,
+            style: "normal",
+            src: ["./src/assets/fonts/newsreader.woff2"],
+          },
+        ],
       },
       {
-        provider: fontProviders.google(),
+        provider: "local",
         name: "Inter",
         cssVariable: "--font-inter",
-        weights: [400, 500, 600],
-        styles: ["normal"],
         fallbacks: ["system-ui", "-apple-system", "sans-serif"],
-      }
-    ]
+        variants: [
+          {
+            weight: 400,
+            style: "normal",
+            src: ["./src/assets/fonts/inter.woff2"],
+          },
+        ],
+      },
+    ],
   },
 
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
   },
 
   redirects: {
-    '/links': '/about',
+    "/links": "/about",
   },
 
   image: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'live.staticflickr.com',
+        protocol: "https",
+        hostname: "live.staticflickr.com",
       },
       {
-        protocol: 'https',
-        hostname: '**.flickr.com',
+        protocol: "https",
+        hostname: "**.flickr.com",
       },
       {
-        protocol: 'https',
-        hostname: '**.mapbox.com',
-      }
-    ]
+        protocol: "https",
+        hostname: "**.mapbox.com",
+      },
+    ],
   },
 
   integrations: [sitemap()],
