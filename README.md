@@ -1,6 +1,6 @@
 # alexislours.com
 
-My photography portfolio built with Astro, Svelte and TailwindCSS.
+My photography portfolio built with Astro and TailwindCSS.
 
 ## License
 
@@ -11,8 +11,6 @@ This project's code is under the
 
 - **Photo Gallery**: Grid layout displaying photography with image optimization
 - **Flickr Integration**: Loads images and EXIF data from Flickr
-- **Photo Map**: Mapbox map showing photo locations with markers
-- **Search**: Full-text search using Pagefind with image previews
 - **RSS Feed**: XML feed for photo updates
 - **JSON API**: API endpoints for accessing photo data
 - **Responsive Design**: Mobile-first layout
@@ -28,7 +26,6 @@ To run this project, you will need to create a `.env` file in the root directory
 
 - `FLICKR_API_KEY`, a Flickr API key, used to retrieve the pictures.
 - `MAPBOX_ACCESS_TOKEN`, a Mapbox access token with access to the `Static Images API` and `Temporary Geocoding API`, used to generate the map preview found in the picture pages and the reverse geocoding informations.
-- `MAPBOX_PUBLIC_ACCESS_TOKEN`, a Mapbox public access token, used for the `/map/` page.
 
 Additionally, the [content.config.ts](src/content.config.ts) file should be updated to fetch data from another Flickr album.
 
