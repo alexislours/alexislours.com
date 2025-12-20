@@ -3,26 +3,26 @@ export default {
   useTabs: false,
   singleQuote: false,
   semi: true,
-  arrowParens: 'always',
-  trailingComma: 'es5',
+  arrowParens: "always",
+  trailingComma: "es5",
   bracketSameLine: true,
   printWidth: 80,
   bracketSpacing: true,
   singleAttributePerLine: true,
-  endOfLine: 'auto',
-  plugins: ['prettier-plugin-astro', 'prettier-plugin-svelte', 'prettier-plugin-tailwindcss'],
+  endOfLine: "auto",
+  plugins: ["prettier-plugin-astro", "prettier-plugin-tailwindcss"],
   overrides: [
     {
-      files: '*.astro',
+      files: "*.astro",
       options: {
-        parser: 'astro'
-      }
+        parser: "astro",
+      },
     },
     {
-      files: '*.svelte',
+      files: "*.svelte",
       options: {
-        parser: 'svelte'
-      }
-    }
-  ]
-}; 
+        parser: "svelte",
+      },
+    },
+  ],
+};
