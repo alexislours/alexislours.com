@@ -51,8 +51,7 @@ const rolls = [...rollMap.values()]
   .reverse();
 
 const title = "Analog — Alexis LOURS";
-const description =
-  "My analog photography, organized by roll";
+const description = "My analog photography, organized by roll";
 const ogImage = rolls[0]?.coverPhoto.data.imageUrls.original.url;
 ---
 
@@ -65,7 +64,8 @@ const ogImage = rolls[0]?.coverPhoto.data.imageUrls.original.url;
       <a
         href="/"
         class="back"
-        aria-label="Back to home">
+        aria-label="Back to home"
+        data-umami-event="Back to home from analog">
         <svg
           width="20"
           height="20"
@@ -93,7 +93,9 @@ const ogImage = rolls[0]?.coverPhoto.data.imageUrls.original.url;
           <a
             href={`/analog/${roll.slug}`}
             class="roll"
-            style={`--i: ${index}`}>
+            style={`--i: ${index}`}
+            data-umami-event="Click roll"
+            data-umami-event-roll={roll.slug}>
             <div class="roll-number">
               <span>{String(index + 1).padStart(2, "0")}</span>
             </div>
@@ -114,7 +116,7 @@ const ogImage = rolls[0]?.coverPhoto.data.imageUrls.original.url;
               />
             </div>
 
-            <div class="roll-spacer"></div>
+            <div class="roll-spacer" />
 
             <div class="roll-info">
               <h2 class="roll-title">{roll.name}</h2>

@@ -54,7 +54,8 @@ const ogImage = sortedPhotos[0]?.data.imageUrls.original.url;
     <header class="sheet-header">
       <a
         href="/analog"
-        class="back-nav">
+        class="back-nav"
+        data-umami-event="Back to analog archive">
         <svg
           width="18"
           height="18"
@@ -99,7 +100,9 @@ const ogImage = sortedPhotos[0]?.data.imageUrls.original.url;
               <a
                 href={`/analog/${rollSlug}/${photo.id}`}
                 class={`contact-frame ${photo.data.imageUrls.original.orientation === "portrait" ? "portrait" : "landscape"}`}
-                style={`--frame-delay: ${index * 0.03}s`}>
+                style={`--frame-delay: ${index * 0.03}s`}
+                data-umami-event="Click analog frame"
+                data-umami-event-id={photo.id}>
                 <div class="frame-header">
                   <span class="frame-num">
                     {String(index + 1).padStart(2, "0")}
@@ -165,7 +168,8 @@ const ogImage = sortedPhotos[0]?.data.imageUrls.original.url;
     <footer class="sheet-footer">
       <a
         href="/analog"
-        class="back-link">
+        class="back-link"
+        data-umami-event="Back to analog archive">
         <svg
           width="16"
           height="16"
