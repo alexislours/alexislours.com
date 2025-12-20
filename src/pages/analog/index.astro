@@ -114,6 +114,8 @@ const ogImage = rolls[0]?.coverPhoto.data.imageUrls.original.url;
               />
             </div>
 
+            <div class="roll-spacer"></div>
+
             <div class="roll-info">
               <h2 class="roll-title">{roll.name}</h2>
               <div class="roll-meta">
@@ -209,8 +211,7 @@ const ogImage = rolls[0]?.coverPhoto.data.imageUrls.original.url;
   }
 
   .roll {
-    display: grid;
-    grid-template-columns: 60px 160px 1fr auto;
+    display: flex;
     align-items: center;
     gap: 2rem;
     padding: 2.5rem 0;
@@ -244,11 +245,17 @@ const ogImage = rolls[0]?.coverPhoto.data.imageUrls.original.url;
   }
 
   .roll-number {
+    width: 60px;
+    flex-shrink: 0;
     font-family: var(--font-inter), monospace;
     font-size: 0.75rem;
     font-weight: 300;
     color: var(--muted);
     letter-spacing: 0.1em;
+  }
+
+  .roll-spacer {
+    flex: 1;
   }
 
   .roll-image {
@@ -276,8 +283,8 @@ const ogImage = rolls[0]?.coverPhoto.data.imageUrls.original.url;
   }
 
   .roll-info {
-    justify-self: end;
-    text-align: left;
+    width: 320px;
+    flex-shrink: 0;
   }
 
   .roll-title {
@@ -334,12 +341,13 @@ const ogImage = rolls[0]?.coverPhoto.data.imageUrls.original.url;
     }
 
     .roll {
-      grid-template-columns: 1fr;
+      flex-direction: column;
       gap: 1rem;
       padding: 2rem 0;
     }
 
-    .roll-number {
+    .roll-number,
+    .roll-spacer {
       display: none;
     }
 
@@ -360,9 +368,17 @@ const ogImage = rolls[0]?.coverPhoto.data.imageUrls.original.url;
       display: none;
     }
 
+    .roll-info {
+      width: 100%;
+    }
+
     .roll-meta {
       flex-wrap: wrap;
       gap: 0.5rem 1rem;
+    }
+
+    .roll-meta .frames {
+      margin-left: auto;
     }
   }
 
