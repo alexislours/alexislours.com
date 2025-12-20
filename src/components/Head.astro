@@ -1,5 +1,5 @@
 ---
-import { Font } from 'astro:assets';
+import { Font } from "astro:assets";
 
 const { title, description, ogImage } = Astro.props;
 ---
@@ -16,8 +16,14 @@ const { title, description, ogImage } = Astro.props;
   href="https://stats.alexislours.com"
 />
 
-<Font cssVariable="--font-newsreader" preload />
-<Font cssVariable="--font-inter" preload />
+<Font
+  cssVariable="--font-newsreader"
+  preload
+/>
+<Font
+  cssVariable="--font-inter"
+  preload
+/>
 
 <link
   rel="icon"

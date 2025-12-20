@@ -188,7 +188,7 @@ const formatDate = (date: Date) => {
         {
           currentPhoto.title && (
             <div>
-              <h1 class="font-serif text-3xl font-light leading-tight tracking-tight text-gray-900">
+              <h1 class="font-serif text-3xl leading-tight font-light tracking-tight text-gray-900">
                 {currentPhoto.title}
               </h1>
             </div>
@@ -197,10 +197,9 @@ const formatDate = (date: Date) => {
 
         {
           currentPhoto.description && (
-              <p
-                class="font-sans text-sm leading-relaxed text-gray-700">
-                {currentPhoto.description}
-              </p>
+            <p class="font-sans text-sm leading-relaxed text-gray-700">
+              {currentPhoto.description}
+            </p>
           )
         }
 
@@ -243,19 +242,26 @@ const formatDate = (date: Date) => {
         }
 
         <div class="space-y-1">
-          <h2 class="font-sans text-xs font-medium uppercase tracking-wider text-gray-500">Date Taken</h2>
-          <p
-            class="font-sans text-sm text-gray-900">
+          <h2
+            class="font-sans text-xs font-medium tracking-wider text-gray-500 uppercase">
+            Date Taken
+          </h2>
+          <p class="font-sans text-sm text-gray-900">
             {formatDate(currentPhoto.date_taken)}
           </p>
         </div>
 
         <div class="space-y-2 border-t border-gray-100 pt-6">
-          <h2 class="font-sans text-xs font-medium uppercase tracking-wider text-gray-500">Image Details</h2>
+          <h2
+            class="font-sans text-xs font-medium tracking-wider text-gray-500 uppercase">
+            Image Details
+          </h2>
           <div class="font-sans text-sm text-gray-700">
             <div class="flex justify-between py-1">
               <span class="text-gray-500">Dimensions</span>
-              <span class="font-medium text-gray-900">{currentPhoto.width_o} × {currentPhoto.height_o}</span>
+              <span class="font-medium text-gray-900"
+                >{currentPhoto.width_o} × {currentPhoto.height_o}</span
+              >
             </div>
           </div>
         </div>
@@ -263,12 +269,12 @@ const formatDate = (date: Date) => {
         {
           currentPhoto.exif?.Model || currentPhoto.exif?.Lens ? (
             <div class="space-y-2 border-t border-gray-100 pt-6">
-              <h2 class="font-sans text-xs font-medium uppercase tracking-wider text-gray-500">
+              <h2 class="font-sans text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Camera
               </h2>
               <div class="space-y-1.5 font-sans text-sm text-gray-700">
                 {currentPhoto.exif.Model && (
-                  <div class="wrap-break-word font-medium text-gray-900">
+                  <div class="font-medium wrap-break-word text-gray-900">
                     {currentPhoto.exif.Model.clean ||
                       currentPhoto.exif.Model.value}
                   </div>
@@ -290,7 +296,7 @@ const formatDate = (date: Date) => {
           currentPhoto.exif?.FocalLength ||
           currentPhoto.exif?.ISO ? (
             <div class="space-y-2 border-t border-gray-100 pt-6">
-              <h2 class="font-sans text-xs font-medium uppercase tracking-wider text-gray-500">
+              <h2 class="font-sans text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Settings
               </h2>
               <div class="grid grid-cols-2 gap-3 font-sans text-sm">
@@ -307,7 +313,9 @@ const formatDate = (date: Date) => {
                 {currentPhoto.exif.ExposureTime && (
                   <div class="space-y-0.5">
                     <div class="text-xs text-gray-500">Shutter</div>
-                    <div class="font-medium text-gray-900">{currentPhoto.exif.ExposureTime.raw}</div>
+                    <div class="font-medium text-gray-900">
+                      {currentPhoto.exif.ExposureTime.raw}
+                    </div>
                   </div>
                 )}
                 {currentPhoto.exif.ISO && (
@@ -333,24 +341,28 @@ const formatDate = (date: Date) => {
           ) : null
         }
 
-        {currentPhoto.locationName && (
-          <div class="space-y-3 border-t border-gray-100 pt-6">
-            <div class="space-y-1">
-              <h2 class="font-sans text-xs font-medium uppercase tracking-wider text-gray-500">Location</h2>
-              <p class="font-sans text-sm text-gray-900">
-                {currentPhoto.locationName}
-              </p>
+        {
+          currentPhoto.locationName && (
+            <div class="space-y-3 border-t border-gray-100 pt-6">
+              <div class="space-y-1">
+                <h2 class="font-sans text-xs font-medium tracking-wider text-gray-500 uppercase">
+                  Location
+                </h2>
+                <p class="font-sans text-sm text-gray-900">
+                  {currentPhoto.locationName}
+                </p>
+              </div>
+              <MapBox
+                latitude={currentPhoto.latitude}
+                longitude={currentPhoto.longitude}
+                locationName={currentPhoto.locationName}
+                width={300}
+                height={300}
+                zoom={13}
+              />
             </div>
-            <MapBox
-              latitude={currentPhoto.latitude}
-              longitude={currentPhoto.longitude}
-              locationName={currentPhoto.locationName}
-              width={300}
-              height={300}
-              zoom={13}
-            />
-          </div>
-        )}
+          )
+        }
       </div>
     </aside>
   </div>

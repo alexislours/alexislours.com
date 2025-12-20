@@ -5,6 +5,14 @@ export interface PhotoImageUrl {
   url: string;
 }
 
+export interface PhotoMetadata {
+  roll?: string;
+  film?: string;
+  shot?: string;
+  cover?: boolean;
+  [key: string]: string | boolean | undefined;
+}
+
 export interface PhotoData {
   id: string;
   title: string;
@@ -12,6 +20,8 @@ export interface PhotoData {
   date_taken: Date;
   longitude: number;
   latitude: number;
+  tags: string[];
+  metadata: PhotoMetadata;
   imageUrls: {
     sq_75px?: PhotoImageUrl;
     "100px"?: PhotoImageUrl;
@@ -64,6 +74,7 @@ interface FlickrPhotoBase {
   datetaken?: string;
   latitude?: string;
   longitude?: string;
+  tags?: string;
   secret: string;
   server: string;
   farm: number;

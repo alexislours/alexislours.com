@@ -1,0 +1,67 @@
+---
+import { ClientRouter } from "astro:transitions";
+import Head from "@components/Head.astro";
+import styles from "../styles/global.css?url";
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+}
+
+const { title, description, ogImage } = Astro.props;
+---
+
+<!doctype html>
+<html
+  lang="en"
+  class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <link
+      rel="stylesheet"
+      rel="preload"
+      href={styles}
+      as="style"
+    />
+    <Head
+      title={title}
+      description={description}
+      ogImage={ogImage}
+    />
+    <slot name="head" />
+  </head>
+  <body class="analog-body">
+    <ClientRouter />
+    <div
+      class="grain"
+      aria-hidden="true">
+    </div>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  .analog-body {
+    --bg: #0a0a0a;
+    --fg: #e8e4de;
+    --muted: #6b6560;
+    --border: #1f1e1c;
+    --accent: #c9a227;
+
+    min-height: 100vh;
+    font-family: var(--font-newsreader), Georgia, serif;
+    background: var(--bg);
+    color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+</style>

@@ -1,0 +1,543 @@
+---
+import { Picture } from "astro:assets";
+import { getCollection, type CollectionEntry } from "astro:content";
+import AnalogLayout from "@layouts/AnalogLayout.astro";
+
+export async function getStaticPaths() {
+  const allPhotos = await getCollection("analog");
+  const rollMap = new Map<string, CollectionEntry<"analog">[]>();
+
+  for (const photo of allPhotos) {
+    const metadata = photo.data.metadata ?? {};
+    const { roll } = metadata;
+    if (roll) {
+      if (!rollMap.has(roll)) {
+        rollMap.set(roll, []);
+      }
+      rollMap.get(roll)!.push(photo);
+    }
+  }
+
+  return [...rollMap.entries()].map(([roll, photos]) => ({
+    params: { roll },
+    props: { photos, rollSlug: roll },
+  }));
+}
+
+interface Props {
+  photos: CollectionEntry<"analog">[];
+  rollSlug: string;
+}
+
+const { photos, rollSlug } = Astro.props;
+
+const sortedPhotos = photos.sort(
+  (a, b) =>
+    new Date(a.data.date_taken).getTime() -
+    new Date(b.data.date_taken).getTime()
+);
+
+const firstPhotoMeta = sortedPhotos[0]?.data.metadata ?? {};
+const filmStock = firstPhotoMeta.film?.toUpperCase() || null;
+const shotDate = firstPhotoMeta.shot || null;
+
+const title = `${rollSlug} — Analog — Alexis LOURS`;
+const description = `${sortedPhotos.length} frames from ${rollSlug}${filmStock ? ` shot on ${filmStock}` : ""}`;
+const ogImage = sortedPhotos[0]?.data.imageUrls.original.url;
+---
+
+<AnalogLayout
+  title={title}
+  description={description}
+  ogImage={ogImage}>
+  <main class="contact-sheet-page">
+    <header class="sheet-header">
+      <a
+        href="/analog"
+        class="back-nav">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5">
+          <path
+            d="M19 12H5M12 19l-7-7 7-7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+        </svg>
+        <span>Archive</span>
+      </a>
+
+      <div class="header-center">
+        <h1 class="roll-title">{rollSlug}</h1>
+        <div class="roll-details">
+          {filmStock && <span class="film-badge">{filmStock}</span>}
+          {shotDate && <span class="shot-date">{shotDate}</span>}
+        </div>
+      </div>
+
+      <div class="frame-counter">
+        <span class="counter-num">{sortedPhotos.length}</span>
+        <span class="counter-label">frames</span>
+      </div>
+    </header>
+
+    <section class="contact-sheet">
+      <div class="sheet-border">
+        <div class="lab-info top">
+          <span class="lab-text">{filmStock || "35MM"}</span>
+          <span class="lab-arrows">◀ ▶</span>
+          <span class="lab-text">{rollSlug.toUpperCase()}</span>
+        </div>
+
+        <div class="frames-grid">
+          {
+            sortedPhotos.map((photo, index) => (
+              <a
+                href={`/analog/${rollSlug}/${photo.id}`}
+                class={`contact-frame ${photo.data.imageUrls.original.orientation === "portrait" ? "portrait" : "landscape"}`}
+                style={`--frame-delay: ${index * 0.03}s`}>
+                <div class="frame-header">
+                  <span class="frame-num">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span class="frame-code">{index + 1}A</span>
+                </div>
+
+                <div class="image-window">
+                  <Picture
+                    src={photo.data.imageUrls.original.url}
+                    alt={
+                      photo.data.description ||
+                      photo.data.title ||
+                      "Analog photograph"
+                    }
+                    formats={["avif"]}
+                    loading={index < 12 ? "eager" : "lazy"}
+                    fetchpriority={index < 6 ? "high" : "auto"}
+                    fallbackFormat="jpg"
+                    width={photo.data.imageUrls.original.width}
+                    height={photo.data.imageUrls.original.height}
+                    class="contact-image"
+                    sizes={
+                      photo.data.imageUrls.original.orientation === "portrait"
+                        ? "(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 200px"
+                        : "(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 240px"
+                    }
+                    widths={[300, 400, 500]}
+                  />
+                  <div class="image-overlay">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5">
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="3"
+                      />
+                      <path d="M12 1v4M12 19v4M1 12h4M19 12h4" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="frame-footer">
+                  <span class="rebate-mark">→</span>
+                </div>
+              </a>
+            ))
+          }
+        </div>
+
+        <div class="lab-info bottom">
+          <span class="lab-text">PROCESSED</span>
+          <span class="lab-text">{sortedPhotos.length} EXP</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="sheet-footer">
+      <a
+        href="/analog"
+        class="back-link">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5">
+          <path
+            d="M19 12H5M12 19l-7-7 7-7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+        </svg>
+        <span>Back to archive</span>
+      </a>
+    </footer>
+  </main>
+</AnalogLayout>
+
+<style>
+  .contact-sheet-page {
+    --film-base: #1a1714;
+    --emulsion: #f7f3eb;
+    --rebate: #8a7e6d;
+    --amber: #d4a84b;
+    --kodak: #fdc300;
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+  }
+
+  .sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: linear-gradient(
+      to bottom,
+      var(--bg) 0%,
+      var(--bg) 60%,
+      transparent 100%
+    );
+  }
+
+  .back-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--rebate);
+    text-decoration: none;
+    font-family: var(--font-inter), monospace;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+  }
+
+  .back-nav:hover {
+    color: var(--fg);
+  }
+
+  .header-center {
+    text-align: center;
+  }
+
+  .roll-title {
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.1em;
+    color: var(--fg);
+    margin-bottom: 0.3rem;
+  }
+
+  .roll-details {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .film-badge {
+    background: var(--kodak);
+    color: #000;
+    padding: 0.2rem 0.5rem;
+    font-family: var(--font-inter), monospace;
+    font-size: 0.55rem;
+    font-weight: 500;
+    border-radius: 2px;
+    letter-spacing: 0.03em;
+  }
+
+  .shot-date {
+    font-family: var(--font-inter), monospace;
+    font-size: 0.65rem;
+    font-weight: 300;
+    color: var(--rebate);
+  }
+
+  .frame-counter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .counter-num {
+    font-family: var(--font-inter), monospace;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--amber);
+    line-height: 1;
+  }
+
+  .counter-label {
+    font-family: var(--font-inter), monospace;
+    font-size: 0.5rem;
+    font-weight: 300;
+    color: var(--rebate);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .contact-sheet {
+    padding: 1rem 2rem 3rem;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .sheet-border {
+    background: var(--film-base);
+    border-radius: 4px;
+    padding: 0;
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .lab-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    font-family: var(--font-inter), monospace;
+    font-size: 0.45rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    color: var(--amber);
+    opacity: 0.6;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  }
+
+  .lab-info.bottom {
+    border-bottom: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+  }
+
+  .lab-arrows {
+    letter-spacing: 0.4em;
+  }
+
+  .frames-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1px;
+    padding: 1px;
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .contact-frame {
+    display: flex;
+    flex-direction: column;
+    background: var(--film-base);
+    text-decoration: none;
+    color: inherit;
+    opacity: 0;
+    transform: scale(0.95);
+    animation: frameReveal 0.5s ease-out forwards;
+    animation-delay: var(--frame-delay);
+    transition: transform 0.3s ease;
+  }
+
+  @keyframes frameReveal {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .contact-frame:hover {
+    transform: scale(1.02);
+    z-index: 10;
+  }
+
+  .contact-frame:hover .image-overlay {
+    opacity: 1;
+  }
+
+  .contact-frame:hover .contact-image {
+    filter: contrast(1.1) saturate(1.05);
+  }
+
+  .frame-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0.5rem;
+    font-family: var(--font-inter), monospace;
+    font-size: 0.5rem;
+    color: var(--amber);
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .frame-num {
+    font-weight: 500;
+  }
+
+  .frame-code {
+    opacity: 0.5;
+    font-weight: 300;
+  }
+
+  .image-window {
+    position: relative;
+    height: 180px;
+    background: var(--emulsion);
+    margin: 0 0.5rem;
+    padding: 3px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .image-window :global(picture) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .contact-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    filter: contrast(1.02) saturate(0.95);
+    transition: filter 0.3s ease;
+  }
+
+  .image-overlay {
+    position: absolute;
+    inset: 3px;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--emulsion);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .frame-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.35rem 0.5rem;
+    font-family: var(--font-inter), monospace;
+    font-size: 0.45rem;
+    color: var(--rebate);
+    opacity: 0.4;
+  }
+
+  .sheet-footer {
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--rebate);
+    text-decoration: none;
+    font-family: var(--font-inter), monospace;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+  }
+
+  .back-link:hover {
+    color: var(--fg);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  @media (max-width: 1024px) {
+    .contact-sheet {
+      padding: 1rem;
+    }
+
+    .frames-grid {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .sheet-header {
+      padding: 1rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .header-center {
+      order: -1;
+      width: 100%;
+    }
+
+    .frames-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .contact-sheet {
+      padding: 0.5rem;
+    }
+
+    .frame-counter {
+      display: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .frames-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+    }
+
+    .frame-header,
+    .frame-footer {
+      padding: 0.3rem 0.4rem;
+    }
+
+    .image-window {
+      margin: 0 0.3rem;
+      padding: 2px;
+    }
+  }
+</style>
+
+<script>
+  function initAnimations() {
+    const frames = document.querySelectorAll(".contact-frame");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "50px" }
+    );
+    frames.forEach((frame) => observer.observe(frame));
+  }
+
+  initAnimations();
+  document.addEventListener("astro:after-swap", initAnimations);
+</script>

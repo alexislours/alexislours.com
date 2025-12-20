@@ -33,36 +33,90 @@ const {
 ---
 
 <!doctype html>
-<html lang="en" class="no-js">
+<html
+  lang="en"
+  class="no-js">
   <head>
     <meta charset="utf-8" />
     <title>{title}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+    <meta
+      name="description"
+      content={description}
+    />
 
-    <link rel="stylesheet" rel="preload" href={styles} as="style" />
-    <Font cssVariable="--font-newsreader" preload />
-    <Font cssVariable="--font-inter" preload />
+    <link
+      rel="stylesheet"
+      rel="preload"
+      href={styles}
+      as="style"
+    />
+    <Font
+      cssVariable="--font-newsreader"
+      preload
+    />
+    <Font
+      cssVariable="--font-inter"
+      preload
+    />
 
-    <link rel="preconnect" href="https://stats.alexislours.com" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link
+      rel="preconnect"
+      href="https://stats.alexislours.com"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/favicon.svg"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicon.png"
+    />
     <link
       rel="alternate"
       type="application/rss+xml"
       title="Alexis LOURS"
       href="/rss.xml"
     />
-    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link
+      rel="sitemap"
+      href="/sitemap-index.xml"
+    />
 
-    <meta property="og:image" content={ogImage} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta
+      property="og:image"
+      content={ogImage}
+    />
+    <meta
+      property="og:title"
+      content={title}
+    />
+    <meta
+      property="og:description"
+      content={description}
+    />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImage} />
+    <meta
+      name="twitter:card"
+      content="summary_large_image"
+    />
+    <meta
+      name="twitter:title"
+      content={title}
+    />
+    <meta
+      name="twitter:description"
+      content={description}
+    />
+    <meta
+      name="twitter:image"
+      content={ogImage}
+    />
 
     {
       optimizedBackgrounds[0] && (
@@ -76,7 +130,11 @@ const {
     }
     {
       optimizedBackgrounds[1] && (
-        <link rel="prefetch" as="image" href={optimizedBackgrounds[1]} />
+        <link
+          rel="prefetch"
+          as="image"
+          href={optimizedBackgrounds[1]}
+        />
       )
     }
 
@@ -84,153 +142,182 @@ const {
       defer
       src="https://stats.alexislours.com/script.js"
       data-domains="alexislours.com"
-      data-website-id="de661cdc-605e-4a35-8a69-b8a63f33ec0a"></script>
+      data-website-id="de661cdc-605e-4a35-8a69-b8a63f33ec0a"
+    ></script>
   </head>
   <body>
     <ClientRouter />
     <main>
-    <div
-      class="experience"
-      data-optimized-bgs={JSON.stringify(optimizedBackgrounds)}>
-      <section class="hero">
-        <div class="hero-content">
-          <h1 class="year-title">{year}</h1>
-          <p class="photo-count">
-            {photoCount}
-            {photoCount === 1 ? "photo" : "photos"}
-          </p>
-        </div>
-        <div class="scroll-indicator">
-          <div class="scroll-text">Scroll to explore</div>
-          <div class="scroll-arrow"></div>
-        </div>
-        <div class="hero-gradient"></div>
-      </section>
+      <div
+        class="experience"
+        data-optimized-bgs={JSON.stringify(optimizedBackgrounds)}>
+        <section class="hero">
+          <div class="hero-content">
+            <h1 class="year-title">{year}</h1>
+            <p class="photo-count">
+              {photoCount}
+              {photoCount === 1 ? "photo" : "photos"}
+            </p>
+          </div>
+          <div class="scroll-indicator">
+            <div class="scroll-text">Scroll to explore</div>
+            <div class="scroll-arrow"></div>
+          </div>
+          <div class="hero-gradient"></div>
+        </section>
 
-      <div class="photo-journey">
-        {
-          sortedPhotos.map((photo, index) => {
-            const isPortrait =
-              photo.data.imageUrls.original.orientation === "portrait";
-            const isLandscape =
-              photo.data.imageUrls.original.orientation === "landscape";
+        <div class="photo-journey">
+          {
+            sortedPhotos.map((photo, index) => {
+              const isPortrait =
+                photo.data.imageUrls.original.orientation === "portrait";
+              const isLandscape =
+                photo.data.imageUrls.original.orientation === "landscape";
 
-            const optimizedBgUrl = optimizedBackgrounds[index];
+              const optimizedBgUrl = optimizedBackgrounds[index];
 
-            return (
-              <div
-                id={photo.id}
-                class={`photo-section ${isPortrait ? "portrait" : ""} ${isLandscape ? "landscape" : ""}`}
-                data-index={index}
-                data-thumb-url={optimizedBgUrl}
-                data-main-url={photo.data.imageUrls.original.url}>
-                <img
-                  src={optimizedBgUrl}
-                  alt=""
-                  class="photo-bg"
-                  loading={index < 2 ? "eager" : "lazy"}
-                  aria-hidden="true"
-                />
-                <div class="photo-container">
-                  <div class="photo-wrapper">
-                    <Picture
-                      src={photo.data.imageUrls.original.url}
-                      alt={
-                        photo.data.description || photo.data.title || "Photo"
-                      }
-                      formats={["avif"]}
-                      loading={index < 3 ? "eager" : "lazy"}
-                      fetchpriority={index < 3 ? "high" : "auto"}
-                      fallbackFormat="jpg"
-                      width={photo.data.imageUrls.original.width}
-                      height={photo.data.imageUrls.original.height}
-                      class="photo-img"
-                      sizes="100vw"
-                      widths={[800, 1200, 1600, 2000, 2400]}
-                    />
-                  </div>
-                  {(photo.data.title ||
-                    photo.data.locationName ||
-                    photo.data.description) && (
-                    <div class="photo-meta">
-                      {photo.data.title && (
-                        <div class="photo-title">{photo.data.title}</div>
-                      )}
-                      {photo.data.locationName && (
-                        <div class="photo-location">
-                          {photo.data.locationName}
-                        </div>
-                      )}
-                      {photo.data.description && (
-                        <div class="photo-description">
-                          {photo.data.description}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })
-        }
-      </div>
-
-      {
-        otherYearsWithPhotos.length > 0 && (
-          <section id="other-years" class="other-years">
-            <div class="other-years-content">
-              <div class="social-share">
-                <button class="share-button" aria-label="Share this collection">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <circle cx="18" cy="5" r="3" />
-                    <circle cx="6" cy="12" r="3" />
-                    <circle cx="18" cy="19" r="3" />
-                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                  </svg>
-                  <span>Share</span>
-                </button>
-              </div>
-
-              <h2 class="other-years-title">Explore Other Years</h2>
-
-              <div class="years-grid">
-                {otherYearsWithPhotos.map(({ year: otherYear, photo }) => (
-                  <a href={`/photos/${otherYear}`} class="year-card">
-                    <div class="year-card-image">
+              return (
+                <div
+                  id={photo.id}
+                  class={`photo-section ${isPortrait ? "portrait" : ""} ${isLandscape ? "landscape" : ""}`}
+                  data-index={index}
+                  data-thumb-url={optimizedBgUrl}
+                  data-main-url={photo.data.imageUrls.original.url}>
+                  <img
+                    src={optimizedBgUrl}
+                    alt=""
+                    class="photo-bg"
+                    loading={index < 2 ? "eager" : "lazy"}
+                    aria-hidden="true"
+                  />
+                  <div class="photo-container">
+                    <div class="photo-wrapper">
                       <Picture
                         src={photo.data.imageUrls.original.url}
-                        alt={`Best photos from ${otherYear}`}
+                        alt={
+                          photo.data.description || photo.data.title || "Photo"
+                        }
                         formats={["avif"]}
-                        loading="lazy"
+                        loading={index < 3 ? "eager" : "lazy"}
+                        fetchpriority={index < 3 ? "high" : "auto"}
                         fallbackFormat="jpg"
                         width={photo.data.imageUrls.original.width}
                         height={photo.data.imageUrls.original.height}
-                        class="year-thumbnail"
-                        widths={[400, 600, 800]}
+                        class="photo-img"
+                        sizes="100vw"
+                        widths={[800, 1200, 1600, 2000, 2400]}
                       />
-                      <div class="year-overlay">
-                        <span class="year-label">{otherYear}</span>
-                      </div>
                     </div>
-                  </a>
-                ))}
+                    {(photo.data.title ||
+                      photo.data.locationName ||
+                      photo.data.description) && (
+                      <div class="photo-meta">
+                        {photo.data.title && (
+                          <div class="photo-title">{photo.data.title}</div>
+                        )}
+                        {photo.data.locationName && (
+                          <div class="photo-location">
+                            {photo.data.locationName}
+                          </div>
+                        )}
+                        {photo.data.description && (
+                          <div class="photo-description">
+                            {photo.data.description}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          }
+        </div>
+
+        {
+          otherYearsWithPhotos.length > 0 && (
+            <section
+              id="other-years"
+              class="other-years">
+              <div class="other-years-content">
+                <div class="social-share">
+                  <button
+                    class="share-button"
+                    aria-label="Share this collection">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <circle
+                        cx="18"
+                        cy="5"
+                        r="3"
+                      />
+                      <circle
+                        cx="6"
+                        cy="12"
+                        r="3"
+                      />
+                      <circle
+                        cx="18"
+                        cy="19"
+                        r="3"
+                      />
+                      <line
+                        x1="8.59"
+                        y1="13.51"
+                        x2="15.42"
+                        y2="17.49"
+                      />
+                      <line
+                        x1="15.41"
+                        y1="6.51"
+                        x2="8.59"
+                        y2="10.49"
+                      />
+                    </svg>
+                    <span>Share</span>
+                  </button>
+                </div>
+
+                <h2 class="other-years-title">Explore Other Years</h2>
+
+                <div class="years-grid">
+                  {otherYearsWithPhotos.map(({ year: otherYear, photo }) => (
+                    <a
+                      href={`/photos/${otherYear}`}
+                      class="year-card">
+                      <div class="year-card-image">
+                        <Picture
+                          src={photo.data.imageUrls.original.url}
+                          alt={`Best photos from ${otherYear}`}
+                          formats={["avif"]}
+                          loading="lazy"
+                          fallbackFormat="jpg"
+                          width={photo.data.imageUrls.original.width}
+                          height={photo.data.imageUrls.original.height}
+                          class="year-thumbnail"
+                          widths={[400, 600, 800]}
+                        />
+                        <div class="year-overlay">
+                          <span class="year-label">{otherYear}</span>
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
-        )
-      }
-    </div>
-  </main>
+            </section>
+          )
+        }
+      </div>
+    </main>
   </body>
 </html>
 
@@ -241,7 +328,8 @@ const {
     box-sizing: border-box;
   }
 
-  html,  body {
+  html,
+  body {
     min-height: fill-available;
     color: #fff;
     background: #000;

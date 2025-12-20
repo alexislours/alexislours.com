@@ -15,7 +15,15 @@ const photoShowcase = defineCollection({
   }),
 });
 
+const analog = defineCollection({
+  loader: createPhotoLoader({
+    username: "alexisloursphotos",
+    photoset_id: "72177720331003262",
+  }),
+});
+
 export const collections = {
   photos,
   photoShowcase,
+  analog,
 };

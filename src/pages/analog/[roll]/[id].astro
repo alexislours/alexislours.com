@@ -1,0 +1,784 @@
+---
+import { Picture } from "astro:assets";
+import { getCollection, type CollectionEntry } from "astro:content";
+import AnalogLayout from "@layouts/AnalogLayout.astro";
+
+export async function getStaticPaths() {
+  const allPhotos = await getCollection("analog");
+  const rollMap = new Map<string, CollectionEntry<"analog">[]>();
+
+  for (const photo of allPhotos) {
+    const metadata = photo.data.metadata ?? {};
+    const { roll } = metadata;
+    if (roll) {
+      if (!rollMap.has(roll)) {
+        rollMap.set(roll, []);
+      }
+      rollMap.get(roll)!.push(photo);
+    }
+  }
+
+  const paths: { params: { roll: string; id: string }; props: Props }[] = [];
+
+  for (const [rollSlug, photos] of rollMap.entries()) {
+    const sortedPhotos = photos.sort(
+      (a, b) =>
+        new Date(a.data.date_taken).getTime() -
+        new Date(b.data.date_taken).getTime()
+    );
+
+    for (let i = 0; i < sortedPhotos.length; i++) {
+      const photo = sortedPhotos[i];
+      paths.push({
+        params: { roll: rollSlug, id: photo.id },
+        props: {
+          photo,
+          rollSlug,
+          rollPhotos: sortedPhotos,
+          currentIndex: i,
+          prevPhoto: i > 0 ? sortedPhotos[i - 1] : null,
+          nextPhoto: i < sortedPhotos.length - 1 ? sortedPhotos[i + 1] : null,
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+interface Props {
+  photo: CollectionEntry<"analog">;
+  rollSlug: string;
+  rollPhotos: CollectionEntry<"analog">[];
+  currentIndex: number;
+  prevPhoto: CollectionEntry<"analog"> | null;
+  nextPhoto: CollectionEntry<"analog"> | null;
+}
+
+const { photo, rollSlug, rollPhotos, currentIndex, prevPhoto, nextPhoto } =
+  Astro.props;
+
+const metadata = photo.data.metadata ?? {};
+const { film, shot } = metadata;
+const filmStock = film?.toUpperCase() || null;
+const shotDate = shot || null;
+const frameNumber = String(currentIndex + 1).padStart(2, "0");
+const isPortrait = photo.data.imageUrls.original.orientation === "portrait";
+
+const exif = photo.data.exif || {};
+const camera = exif.Model?.value || null;
+const lens = exif.LensModel?.value || exif.Lens?.value || null;
+const exposureTime = exif.ExposureTime?.value || null;
+const fNumber = exif.FNumber?.clean || null;
+const iso = exif.ISO?.value || null;
+const exposureInfo = [exposureTime, fNumber, iso ? `ISO ${iso}` : null]
+  .filter(Boolean)
+  .join(" · ");
+
+const title = photo.data.title
+  ? `${photo.data.title} — ${rollSlug} — Analog`
+  : `Frame ${frameNumber} — ${rollSlug} — Analog`;
+const description =
+  photo.data.description || `Frame ${frameNumber} from ${rollSlug}`;
+const ogImage = photo.data.imageUrls.original.url;
+
+const hasMetadata =
+  photo.data.title ||
+  photo.data.description ||
+  shotDate ||
+  photo.data.locationName ||
+  camera ||
+  lens ||
+  exposureInfo;
+---
+
+<AnalogLayout
+  title={title}
+  description={description}
+  ogImage={ogImage}>
+  <Fragment slot="head">
+    {
+      prevPhoto && (
+        <link
+          rel="prefetch"
+          href={
+            prevPhoto.data.imageUrls["1024px"]?.url ||
+            prevPhoto.data.imageUrls.original.url
+          }
+        />
+      )
+    }
+    {
+      nextPhoto && (
+        <link
+          rel="prefetch"
+          href={
+            nextPhoto.data.imageUrls["1024px"]?.url ||
+            nextPhoto.data.imageUrls.original.url
+          }
+        />
+      )
+    }
+  </Fragment>
+
+  <main class="viewer">
+    <header class="header">
+      <a
+        href={`/analog/${rollSlug}`}
+        class="back-btn"
+        aria-label="Back to roll">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5">
+          <path
+            d="M19 12H5M12 19l-7-7 7-7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+        </svg>
+      </a>
+
+      <div class="header-center">
+        <span class="frame-counter">
+          <span class="current">{frameNumber}</span>
+          <span class="sep">/</span>
+          <span class="total">{String(rollPhotos.length).padStart(2, "0")}</span
+          >
+        </span>
+      </div>
+
+      <div class="header-right">
+        {
+          hasMetadata && (
+            <button
+              class="info-btn"
+              id="infoToggle"
+              aria-label="Show photo info">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5">
+                <path
+                  d="M12 11v5M12 7h.01"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          )
+        }
+      </div>
+    </header>
+
+    <div class="photo-area">
+      {
+        prevPhoto && (
+          <a
+            href={`/analog/${rollSlug}/${prevPhoto.id}`}
+            class="nav prev"
+            aria-label="Previous">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5">
+              <path
+                d="M15 18l-6-6 6-6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </a>
+        )
+      }
+      {
+        nextPhoto && (
+          <a
+            href={`/analog/${rollSlug}/${nextPhoto.id}`}
+            class="nav next"
+            aria-label="Next">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5">
+              <path
+                d="M9 18l6-6-6-6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </a>
+        )
+      }
+
+      <div class={`photo-frame ${isPortrait ? "portrait" : "landscape"}`}>
+        <Picture
+          src={photo.data.imageUrls.original.url}
+          alt={photo.data.description ||
+            photo.data.title ||
+            "Analog photograph"}
+          formats={["avif"]}
+          loading="eager"
+          fetchpriority="high"
+          fallbackFormat="jpg"
+          width={photo.data.imageUrls.original.width}
+          height={photo.data.imageUrls.original.height}
+          class="photo"
+          sizes="100vw"
+          widths={[800, 1200, 1600, 2000, 2400]}
+        />
+      </div>
+    </div>
+
+    <nav
+      class="strip"
+      aria-label="Photos in roll">
+      <div class="strip-scroll">
+        {
+          rollPhotos.map((p, i) => (
+            <a
+              href={`/analog/${rollSlug}/${p.id}`}
+              class={`thumb ${i === currentIndex ? "current" : ""}`}
+              aria-label={`Frame ${i + 1}`}
+              aria-current={i === currentIndex ? "page" : undefined}>
+              <Picture
+                src={p.data.imageUrls.original.url}
+                alt=""
+                formats={["avif"]}
+                loading="lazy"
+                fallbackFormat="jpg"
+                width={p.data.imageUrls.original.width}
+                height={p.data.imageUrls.original.height}
+                class="thumb-img"
+                sizes="50px"
+                widths={[60, 80]}
+              />
+            </a>
+          ))
+        }
+      </div>
+    </nav>
+
+    {
+      hasMetadata && (
+        <div
+          class="info-panel"
+          id="infoPanel">
+          <div
+            class="info-backdrop"
+            id="infoBackdrop"
+          />
+          <div class="info-content">
+            <button
+              class="info-close"
+              id="infoClose"
+              aria-label="Close">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5">
+                <path
+                  d="M18 6L6 18M6 6l12 12"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+
+            {photo.data.description && (
+              <p class="info-desc">{photo.data.description}</p>
+            )}
+
+            <dl class="info-meta">
+              {filmStock && (
+                <div class="meta-row">
+                  <dt>Film</dt>
+                  <dd>{filmStock}</dd>
+                </div>
+              )}
+
+              {shotDate && (
+                <div class="meta-row">
+                  <dt>Date</dt>
+                  <dd>{shotDate}</dd>
+                </div>
+              )}
+
+              {photo.data.locationName && (
+                <div class="meta-row">
+                  <dt>Location</dt>
+                  <dd>{photo.data.locationName}</dd>
+                </div>
+              )}
+
+              {camera && (
+                <div class="meta-row">
+                  <dt>Camera</dt>
+                  <dd>{camera}</dd>
+                </div>
+              )}
+
+              {lens && (
+                <div class="meta-row">
+                  <dt>Lens</dt>
+                  <dd>{lens}</dd>
+                </div>
+              )}
+
+              {exposureInfo && (
+                <div class="meta-row">
+                  <dt>Exposure</dt>
+                  <dd>{exposureInfo}</dd>
+                </div>
+              )}
+            </dl>
+          </div>
+        </div>
+      )
+    }
+  </main>
+</AnalogLayout>
+
+<style>
+  .viewer {
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    z-index: 50;
+  }
+
+  .back-btn,
+  .info-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: var(--muted);
+    text-decoration: none;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .back-btn:hover,
+  .info-btn:hover {
+    color: var(--fg);
+    border-color: var(--muted);
+  }
+
+  .header-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .frame-counter {
+    font-family: var(--font-inter), monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .frame-counter .current {
+    color: var(--accent);
+  }
+
+  .frame-counter .sep {
+    opacity: 0.4;
+    margin: 0 0.15em;
+  }
+
+  .header-right {
+    width: 40px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .photo-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-height: 0;
+    padding: 1rem;
+  }
+
+  .nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    text-decoration: none;
+    background: rgba(5, 5, 5, 0.8);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    z-index: 20;
+    transition: all 0.2s ease;
+  }
+
+  .nav:hover {
+    color: var(--fg);
+    border-color: var(--muted);
+  }
+
+  .nav.prev {
+    left: 1rem;
+  }
+  .nav.next {
+    right: 1rem;
+  }
+
+  .photo-frame {
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .photo {
+    max-width: calc(100vw - 8rem);
+    max-height: calc(100dvh - 10rem);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .strip {
+    flex-shrink: 0;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 0.6rem 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .strip-scroll {
+    display: flex;
+    gap: 4px;
+    min-width: max-content;
+    justify-content: center;
+  }
+
+  .thumb {
+    display: block;
+    width: 44px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 2px;
+    overflow: hidden;
+    opacity: 0.4;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+  }
+
+  .thumb:hover {
+    opacity: 0.7;
+  }
+
+  .thumb.current {
+    opacity: 1;
+    border-color: var(--accent);
+  }
+
+  .thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .info-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .info-panel.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .info-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+  }
+
+  .info-content {
+    position: relative;
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    transform: translateY(10px);
+    transition: transform 0.3s ease;
+  }
+
+  .info-panel.open .info-content {
+    transform: translateY(0);
+  }
+
+  .info-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .info-close:hover {
+    color: var(--fg);
+  }
+
+  .info-desc {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .info-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 1rem;
+    font-family: var(--font-inter), monospace;
+    font-size: 0.7rem;
+  }
+
+  .meta-row dt {
+    color: var(--muted);
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    min-width: 70px;
+  }
+
+  .meta-row dd {
+    color: var(--muted);
+  }
+
+  @media (max-width: 768px) {
+    .nav {
+      width: 40px;
+      height: 40px;
+    }
+
+    .nav.prev {
+      left: 0.5rem;
+    }
+    .nav.next {
+      right: 0.5rem;
+    }
+
+    .photo {
+      max-width: calc(100vw - 2rem);
+      max-height: calc(100dvh - 9rem);
+    }
+
+    .photo-area {
+      padding: 0.5rem;
+    }
+
+    .strip {
+      padding: 0.5rem;
+    }
+
+    .thumb {
+      width: 38px;
+      height: 26px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .nav {
+      width: 36px;
+      height: 36px;
+      top: auto;
+      bottom: 70px;
+      transform: none;
+    }
+
+    .nav.prev {
+      left: 0.5rem;
+    }
+    .nav.next {
+      right: 0.5rem;
+    }
+
+    .photo {
+      max-width: 100%;
+      max-height: calc(100dvh - 8rem);
+    }
+
+    .photo-area {
+      padding: 0.25rem;
+    }
+
+    .info-content {
+      padding: 1.5rem;
+    }
+  }
+
+  @supports (padding: env(safe-area-inset-bottom)) {
+    .strip {
+      padding-bottom: calc(0.6rem + env(safe-area-inset-bottom));
+    }
+  }
+</style>
+
+<script>
+  function initViewer() {
+    const prevLink = document.querySelector(".nav.prev") as HTMLAnchorElement;
+    const nextLink = document.querySelector(".nav.next") as HTMLAnchorElement;
+    const backLink = document.querySelector(".back-btn") as HTMLAnchorElement;
+
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft" && prevLink) {
+        e.preventDefault();
+        prevLink.click();
+      } else if (e.key === "ArrowRight" && nextLink) {
+        e.preventDefault();
+        nextLink.click();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        const infoPanel = document.getElementById("infoPanel");
+        if (infoPanel?.classList.contains("open")) {
+          infoPanel.classList.remove("open");
+        } else if (backLink) {
+          backLink.click();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeydown);
+
+    const infoPanel = document.getElementById("infoPanel");
+    const infoToggle = document.getElementById("infoToggle");
+    const infoClose = document.getElementById("infoClose");
+    const infoBackdrop = document.getElementById("infoBackdrop");
+
+    if (infoToggle && infoPanel) {
+      infoToggle.addEventListener("click", () => {
+        infoPanel.classList.add("open");
+      });
+    }
+
+    if (infoClose && infoPanel) {
+      infoClose.addEventListener("click", () => {
+        infoPanel.classList.remove("open");
+      });
+    }
+
+    if (infoBackdrop && infoPanel) {
+      infoBackdrop.addEventListener("click", () => {
+        infoPanel.classList.remove("open");
+      });
+    }
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const photoArea = document.querySelector(".photo-area");
+
+    if (photoArea) {
+      photoArea.addEventListener(
+        "touchstart",
+        (e) => {
+          const touch = (e as TouchEvent).touches[0];
+          touchStartX = touch.clientX;
+          touchStartY = touch.clientY;
+        },
+        { passive: true }
+      );
+
+      photoArea.addEventListener(
+        "touchend",
+        (e) => {
+          const touch = (e as TouchEvent).changedTouches[0];
+          const diffX = touchStartX - touch.clientX;
+          const diffY = touchStartY - touch.clientY;
+
+          if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+            if (diffX > 0 && nextLink) {
+              nextLink.click();
+            } else if (diffX < 0 && prevLink) {
+              prevLink.click();
+            }
+          }
+        },
+        { passive: true }
+      );
+    }
+
+    const currentThumb = document.querySelector(".thumb.current");
+    if (currentThumb) {
+      currentThumb.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+    }
+  }
+
+  initViewer();
+  document.addEventListener("astro:after-swap", initViewer);
+</script>

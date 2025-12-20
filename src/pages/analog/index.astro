@@ -1,0 +1,413 @@
+---
+import { Picture } from "astro:assets";
+import { getCollection, type CollectionEntry } from "astro:content";
+import AnalogLayout from "@layouts/AnalogLayout.astro";
+
+const allPhotos = await getCollection("analog");
+
+type Roll = {
+  slug: string;
+  name: string;
+  filmStock: string | null;
+  shotDate: string | null;
+  photos: CollectionEntry<"analog">[];
+  coverPhoto: CollectionEntry<"analog">;
+};
+
+const rollMap = new Map<string, Roll>();
+
+for (const photo of allPhotos) {
+  const metadata = photo.data.metadata ?? {};
+  const { roll, film, shot, cover } = metadata;
+
+  if (roll) {
+    if (!rollMap.has(roll)) {
+      rollMap.set(roll, {
+        slug: roll,
+        name: roll,
+        filmStock: film?.toUpperCase() || null,
+        shotDate: shot || null,
+        photos: [],
+        coverPhoto: photo,
+      });
+    }
+    const rollData = rollMap.get(roll)!;
+    rollData.photos.push(photo);
+
+    if (cover) {
+      rollData.coverPhoto = photo;
+    }
+  }
+}
+
+const rolls = [...rollMap.values()]
+  .sort((a, b) => {
+    const aDate =
+      a.shotDate || a.photos[0]?.data.date_taken.toISOString() || "";
+    const bDate =
+      b.shotDate || b.photos[0]?.data.date_taken.toISOString() || "";
+    return aDate.localeCompare(bDate);
+  })
+  .reverse();
+
+const title = "Analog — Alexis LOURS";
+const description =
+  "A curated collection of analog photography, organized by roll";
+const ogImage = rolls[0]?.coverPhoto.data.imageUrls.original.url;
+---
+
+<AnalogLayout
+  title={title}
+  description={description}
+  ogImage={ogImage}>
+  <main class="archive">
+    <header class="header">
+      <a
+        href="/"
+        class="back"
+        aria-label="Back to home">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5">
+          <path
+            d="M19 12H5M12 19l-7-7 7-7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+        </svg>
+      </a>
+
+      <div class="title-block">
+        <h1 class="title">Film</h1>
+        <span class="count">{rolls.length} rolls</span>
+      </div>
+    </header>
+
+    <section class="rolls">
+      {
+        rolls.map((roll, index) => (
+          <a
+            href={`/analog/${roll.slug}`}
+            class="roll"
+            style={`--i: ${index}`}>
+            <div class="roll-number">
+              <span>{String(index + 1).padStart(2, "0")}</span>
+            </div>
+
+            <div class="roll-image">
+              <Picture
+                src={roll.coverPhoto.data.imageUrls.original.url}
+                alt={roll.name}
+                formats={["avif"]}
+                loading={index < 4 ? "eager" : "lazy"}
+                fetchpriority={index < 2 ? "high" : "auto"}
+                fallbackFormat="jpg"
+                width={roll.coverPhoto.data.imageUrls.original.width}
+                height={roll.coverPhoto.data.imageUrls.original.height}
+                class="cover"
+                sizes="(max-width: 640px) 100vw, 160px"
+                widths={[200, 320, 400]}
+              />
+            </div>
+
+            <div class="roll-info">
+              <h2 class="roll-title">{roll.name}</h2>
+              <div class="roll-meta">
+                {roll.filmStock && <span class="stock">{roll.filmStock}</span>}
+                <span class="frames">{roll.photos.length} frames</span>
+                {roll.shotDate && <span class="date">{roll.shotDate}</span>}
+              </div>
+            </div>
+
+            <div class="roll-arrow">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5">
+                <path
+                  d="M5 12h14M12 5l7 7-7 7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+          </a>
+        ))
+      }
+    </section>
+
+    <footer class="footer">
+      <span class="end-mark">—</span>
+    </footer>
+  </main>
+</AnalogLayout>
+
+<style>
+  .archive {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 3rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: var(--muted);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+
+  .back:hover {
+    color: var(--fg);
+    border-color: var(--muted);
+  }
+
+  .title-block {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .title {
+    font-size: 2.5rem;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.02em;
+  }
+
+  .count {
+    font-family: var(--font-inter), monospace;
+    font-size: 0.7rem;
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .rolls {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .roll {
+    display: grid;
+    grid-template-columns: 60px 160px 1fr auto;
+    align-items: center;
+    gap: 2rem;
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: inherit;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.6s ease forwards;
+    animation-delay: calc(var(--i) * 0.08s);
+  }
+
+  @keyframes fadeUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .roll:hover .cover {
+    transform: scale(1.03);
+  }
+
+  .roll:hover .roll-arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .roll:hover .roll-title {
+    color: var(--accent);
+  }
+
+  .roll-number {
+    font-family: var(--font-inter), monospace;
+    font-size: 0.75rem;
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .roll-image {
+    width: 160px;
+    height: 107px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .roll-image :global(picture) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cover {
+    max-width: 160px;
+    max-height: 107px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .roll-info {
+    justify-self: end;
+    text-align: left;
+  }
+
+  .roll-title {
+    font-size: 1.4rem;
+    font-weight: 400;
+    margin-bottom: 0.4rem;
+    transition: color 0.3s ease;
+  }
+
+  .roll-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: var(--font-inter), monospace;
+    font-size: 0.65rem;
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  .stock {
+    color: var(--accent);
+  }
+
+  .roll-arrow {
+    color: var(--muted);
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: all 0.3s ease;
+  }
+
+  .footer {
+    padding: 4rem 0;
+    text-align: center;
+  }
+
+  .end-mark {
+    color: var(--muted);
+    opacity: 0.3;
+    font-size: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .archive {
+      padding: 0 1.5rem;
+    }
+
+    .header {
+      padding: 2rem 0;
+    }
+
+    .title {
+      font-size: 2rem;
+    }
+
+    .roll {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      padding: 2rem 0;
+    }
+
+    .roll-number {
+      display: none;
+    }
+
+    .roll-image {
+      width: 100%;
+      height: auto;
+      justify-content: center;
+    }
+
+    .roll-image .cover {
+      max-width: 100%;
+      max-height: 300px;
+      width: auto;
+      height: auto;
+    }
+
+    .roll-arrow {
+      display: none;
+    }
+
+    .roll-meta {
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .archive {
+      padding: 0 1rem;
+    }
+
+    .header {
+      gap: 1rem;
+    }
+
+    .title {
+      font-size: 1.75rem;
+    }
+
+    .count {
+      display: none;
+    }
+
+    .roll-title {
+      font-size: 1.2rem;
+    }
+  }
+</style>
+
+<script>
+  function init() {
+    const rolls = document.querySelectorAll<HTMLElement>(".roll");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            (entry.target as HTMLElement).style.animationPlayState = "running";
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    rolls.forEach((roll) => {
+      roll.style.animationPlayState = "paused";
+      observer.observe(roll);
+    });
+  }
+
+  init();
+  document.addEventListener("astro:after-swap", init);
+</script>

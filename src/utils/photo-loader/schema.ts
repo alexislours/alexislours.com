@@ -7,6 +7,20 @@ export const PhotoMeta = z.object({
   url: z.string(),
 });
 
+export const PhotoMetadataSchema = z
+  .object({
+    roll: z.string().optional(),
+    film: z.string().optional(),
+    shot: z.string().optional(),
+    cover: z
+      .union([
+        z.boolean(),
+        z.string().transform((v) => v === "true" || v === "1"),
+      ])
+      .optional(),
+  })
+  .passthrough();
+
 export const PhotoSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -14,6 +28,8 @@ export const PhotoSchema = z.object({
   date_taken: z.date(),
   longitude: z.number(),
   latitude: z.number(),
+  tags: z.array(z.string()).default([]),
+  metadata: PhotoMetadataSchema.default({}),
   imageUrls: z.object({
     sq_75px: PhotoMeta.optional(),
     "100px": PhotoMeta.optional(),

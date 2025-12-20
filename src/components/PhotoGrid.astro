@@ -80,7 +80,7 @@ const { photos, basePath = "/photo" } = Astro.props;
   }
 
   .link::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     border: 1px solid rgba(255, 255, 255, 0.4);
@@ -92,17 +92,16 @@ const { photos, basePath = "/photo" } = Astro.props;
   }
 
   .link::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
-    background:
-      repeating-linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0.015) 0px,
-        transparent 1px,
-        transparent 2px,
-        rgba(0, 0, 0, 0.015) 3px
-      );
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.015) 0px,
+      transparent 1px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.015) 3px
+    );
     pointer-events: none;
     z-index: 1;
     opacity: 0.3;

@@ -88,6 +88,14 @@ export const links: LinkItem[] = [
     color: "#000000",
     category: "personal",
   },
+  {
+    title: "Analog",
+    url: "/analog/",
+    description: "My film photography collection",
+    icon: "film",
+    color: "#c9a227",
+    category: "personal",
+  },
 ];
 
 export const profileInfo: ProfileInfo = {
