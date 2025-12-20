@@ -42,7 +42,7 @@ const filmStock = firstPhotoMeta.film?.toUpperCase() || null;
 const shotDate = firstPhotoMeta.shot || null;
 
 const title = `${rollSlug} — Analog — Alexis LOURS`;
-const description = `${sortedPhotos.length} frames from ${rollSlug}${filmStock ? ` shot on ${filmStock}` : ""}`;
+const description = `${sortedPhotos.length} frames from shot on ${filmStock}`;
 const ogImage = sortedPhotos[0]?.data.imageUrls.original.url;
 ---
 
