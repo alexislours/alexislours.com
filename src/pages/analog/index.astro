@@ -23,7 +23,7 @@ for (const photo of allPhotos) {
   if (roll) {
     if (!rollMap.has(roll)) {
       rollMap.set(roll, {
-        slug: roll,
+        slug: roll.toLowerCase(),
         name: roll,
         filmStock: film?.toUpperCase() || null,
         shotDate: shot || null,

@@ -30,10 +30,10 @@ export async function getStaticPaths() {
     for (let i = 0; i < sortedPhotos.length; i++) {
       const photo = sortedPhotos[i];
       paths.push({
-        params: { roll: rollSlug, id: photo.id },
+        params: { roll: rollSlug.toLowerCase(), id: photo.id },
         props: {
           photo,
-          rollSlug,
+          rollSlug: rollSlug.toLowerCase(),
           rollPhotos: sortedPhotos,
           currentIndex: i,
           prevPhoto: i > 0 ? sortedPhotos[i - 1] : null,

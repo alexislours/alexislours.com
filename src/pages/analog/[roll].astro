@@ -19,8 +19,8 @@ export async function getStaticPaths() {
   }
 
   return [...rollMap.entries()].map(([roll, photos]) => ({
-    params: { roll },
-    props: { photos, rollSlug: roll },
+    params: { roll: roll.toLowerCase() },
+    props: { photos, rollSlug: roll.toLowerCase() },
   }));
 }
 
